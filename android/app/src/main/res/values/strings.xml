@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">تلفزيون العرب</string>
+
+    <!--
+        رابط التطبيق المنشور على الإنترنت
+        غيّر هذا الرابط إلى عنوان موقعك الفعلي
+        مثال: https://your-domain.com/s/tv/
+    -->
+    <string name="app_url">https://iptv.saadsaud.com/1/</string>
+</resources>

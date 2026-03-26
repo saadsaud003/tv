@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+  <rect width="1920" height="1080" fill="#0a1628"/>
+  <!-- Top navbar -->
+  <rect width="1920" height="60" fill="#0f1f35"/>
+  <rect x="1820" y="12" width="36" height="36" rx="18" fill="#1a2d4a"/>
+  <polygon points="1830,22 1830,38 1844,30" fill="#3b82f6"/>
+  <!-- Three cards -->
+  <rect x="200" y="300" width="400" height="280" rx="20" fill="#a855f7"/>
+  <rect x="700" y="300" width="400" height="280" rx="20" fill="#f97316"/>
+  <rect x="1200" y="300" width="400" height="280" rx="20" fill="#10b981"/>
+  <!-- Card labels -->
+  <text x="400" y="460" text-anchor="middle" fill="white" font-size="40" font-family="Arial" font-weight="bold">مسلسلات</text>
+  <text x="900" y="460" text-anchor="middle" fill="white" font-size="40" font-family="Arial" font-weight="bold">أفلام</text>
+  <text x="1400" y="460" text-anchor="middle" fill="white" font-size="40" font-family="Arial" font-weight="bold">تلفزيون مباشر</text>
+  <!-- App name -->
+  <text x="960" y="750" text-anchor="middle" fill="#3b82f6" font-size="48" font-family="Arial" font-weight="bold" opacity="0.5">تلفزيون العرب</text>
+</svg>

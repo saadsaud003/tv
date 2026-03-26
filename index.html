@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1628">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="تطبيق مشاهدة القنوات الفضائية العربية والأفلام والمسلسلات">
+  <title>تلفزيون العرب</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&family=Almarai:wght@400;700;800&family=Changa:wght@400;600;700&family=Noto+Kufi+Arabic:wght@400;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tv.css">
+</head>
+<body>
+  <div class="home-container">
+    <!-- Settings -->
+    <button class="home-settings" onclick="openSettings()" title="الإعدادات">
+      <i class="fas fa-cog"></i>
+    </button>
+
+    <!-- Cards -->
+    <div class="home-cards">
+      <!-- مسلسلات -->
+      <a href="series.html" class="home-card card-series slide-up" style="animation-delay:0.1s">
+        <div class="card-icon">
+          <svg viewBox="0 0 80 80" fill="none"><rect x="8" y="18" width="64" height="44" rx="6" stroke="#fff" stroke-width="3"/><rect x="8" y="18" width="64" height="12" rx="6" fill="rgba(255,255,255,0.2)"/><line x1="20" y1="18" x2="20" y2="62" stroke="#fff" stroke-width="2" opacity="0.5"/><circle cx="40" cy="44" r="8" stroke="#fff" stroke-width="2.5"/><polygon points="38,40 38,48 44,44" fill="#fff"/><rect x="24" y="64" width="32" height="4" rx="2" fill="rgba(255,255,255,0.5)"/></svg>
+        </div>
+        <span class="card-label">مسلسلات</span>
+      </a>
+
+      <!-- أفلام -->
+      <a href="movies.html" class="home-card card-movies slide-up" style="animation-delay:0.2s">
+        <div class="card-icon">
+          <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="28" stroke="#fff" stroke-width="3"/><circle cx="40" cy="40" r="20" stroke="#fff" stroke-width="2" opacity="0.4"/><polygon points="34,28 34,52 56,40" fill="#fff"/><circle cx="40" cy="40" r="4" fill="rgba(255,255,255,0.6)"/></svg>
+        </div>
+        <span class="card-label">أفلام</span>
+      </a>
+
+      <!-- تلفزيون مباشر -->
+      <a href="live.html" class="home-card card-live slide-up" style="animation-delay:0.3s">
+        <div class="card-icon">
+          <svg viewBox="0 0 80 80" fill="none"><rect x="12" y="22" width="56" height="36" rx="6" stroke="#fff" stroke-width="3"/><polygon points="32,34 32,50 46,42" fill="#fff"/><rect x="28" y="58" width="24" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/><rect x="22" y="61" width="36" height="4" rx="2" fill="rgba(255,255,255,0.3)"/><line x1="30" y1="10" x2="36" y2="22" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="10" x2="44" y2="22" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="40" cy="8" r="2" fill="#fff"/></svg>
+        </div>
+        <span class="card-label">تلفزيون مباشر</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="modal">
+      <h2>
+        <span><i class="fas fa-cog"></i> الإعدادات</span>
+        <button onclick="closeSettings()"><i class="fas fa-times"></i></button>
+      </h2>
+
+      <div class="setting-group">
+        <label>نوع الخط</label>
+        <select id="fontFamily" onchange="applyFont()">
+          <option value="'Cairo', sans-serif">Cairo (كايرو)</option>
+          <option value="'Tajawal', sans-serif">Tajawal (تجوال)</option>
+          <option value="'Almarai', sans-serif">Almarai (المراعي)</option>
+          <option value="'Changa', sans-serif">Changa (شانغا)</option>
+          <option value="'Noto Kufi Arabic', sans-serif">Noto Kufi (نوتو كوفي)</option>
+        </select>
+        <div class="font-preview" id="fontPreview">معاينة الخط - بسم الله الرحمن الرحيم</div>
+      </div>
+
+      <div class="setting-group">
+        <label>حجم الخط: <span id="fontSizeVal">14</span>px</label>
+        <input type="range" id="fontSize" min="12" max="20" value="14" onchange="applyFont()" oninput="document.getElementById('fontSizeVal').textContent=this.value">
+      </div>
+
+      <div class="setting-group">
+        <label>جودة البث الافتراضية</label>
+        <select id="defaultQuality" onchange="saveSetting('defaultQuality', this.value)">
+          <option value="auto">تلقائي</option>
+          <option value="1080">1080p</option>
+          <option value="720">720p</option>
+          <option value="480">480p</option>
+          <option value="360">360p</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label>لغة الترجمة المفضلة</label>
+        <select id="subtitleLang" onchange="saveSetting('subtitleLang', this.value)">
+          <option value="ara">العربية</option>
+          <option value="eng">الإنجليزية</option>
+          <option value="fre">الفرنسية</option>
+          <option value="tur">التركية</option>
+        </select>
+      </div>
+
+      <div class="setting-group">
+        <label><i class="fas fa-tv"></i> وضع التلفاز الذكي</label>
+        <select id="tvModeSetting" onchange="handleTVSetting(this.value)">
+          <option value="auto">تلقائي (كشف تلقائي)</option>
+          <option value="on">مفعّل دائماً</option>
+          <option value="off">معطّل</option>
+        </select>
+        <div style="font-size:0.75rem;color:var(--text-muted);margin-top:0.3rem">تفعيل وضع التلفاز يُحسّن التنقل بالريموت والعرض على الشاشات الكبيرة</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Install PWA Banner (auto-shown) -->
+  <div class="install-banner" id="installBanner" style="display:none">
+    <i class="fas fa-download" style="font-size:1.5rem;color:var(--accent)"></i>
+    <div class="install-text" id="installText">ثبّت التطبيق على جهازك للوصول السريع</div>
+    <button class="btn btn-primary btn-sm" id="installBtn" onclick="installPWA()">تثبيت</button>
+    <button class="install-close" onclick="dismissInstall()"><i class="fas fa-times"></i></button>
+  </div>
+
+  <!-- TV Toggle -->
+  <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
+  <script src="js/app.js"></script>
+  <script src="js/tv.js"></script>
+</body>
+</html>

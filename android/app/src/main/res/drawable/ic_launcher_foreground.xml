@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- خلفية دائرية -->
+    <path
+        android:fillColor="#0a1628"
+        android:pathData="M0,0h108v108H0z" />
+
+    <!-- أيقونة التلفاز -->
+    <path
+        android:fillColor="#667eea"
+        android:pathData="M78,30H30c-2.2,0 -4,1.8 -4,4v24c0,2.2 1.8,4 4,4h10v4h28v-4h10c2.2,0 4,-1.8 4,-4V34C82,31.8 80.2,30 78,30zM78,58H30V34h48V58z" />
+
+    <!-- زر التشغيل -->
+    <path
+        android:fillColor="#e2e8f0"
+        android:pathData="M47,39v14l12,-7z" />
+</vector>

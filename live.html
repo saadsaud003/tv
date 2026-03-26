@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1628">
+  <title>تلفزيون مباشر - تلفزيون العرب</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tv.css">
+  <!-- Video.js -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+  <!-- Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <style>
+    .player-engine-bar {
+      background: var(--bg-secondary);
+      padding: 0.4rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-top: 1px solid var(--border);
+      overflow-x: auto;
+    }
+    .player-engine-bar::-webkit-scrollbar { height: 0; }
+    .engine-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .engine-btn {
+      padding: 0.25rem 0.65rem;
+      border-radius: 5px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .engine-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+    .engine-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    /* Video.js overrides for RTL */
+    .video-js { direction: ltr; }
+    .video-js .vjs-big-play-button { z-index: 5; }
+    /* Plyr overrides */
+    .plyr { --plyr-color-main: var(--accent, #3b82f6); }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="logo" title="الرئيسية">
+      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#1a2d4a"/><polygon points="16,12 16,28 28,20" fill="#3b82f6"/></svg>
+    </a>
+    <div class="search-box">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" id="searchInput" placeholder="بحث عن قناة..." oninput="filterChannels(this.value)">
+    </div>
+    <div class="nav-tabs">
+      <a href="index.html">بحث</a>
+      <a href="live.html" class="active">بث مباشر</a>
+      <a href="movies.html">افلام</a>
+      <a href="series.html">مسلسلات</a>
+    </div>
+  </nav>
+
+  <!-- Main Layout: RTL = first item on right -->
+  <div class="live-container">
+    <!-- Category Sidebar (Right in RTL - first in DOM) -->
+    <div class="category-sidebar" id="categorySidebar">
+      <div class="sidebar-header">
+        <i class="fas fa-layer-group"></i>
+        <span>التصنيفات</span>
+      </div>
+      <div class="category-list" id="categoryList">
+        <div class="loading-state">
+          <div class="spinner"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Channel List (Middle) -->
+    <div class="channel-panel">
+      <div class="panel-header">
+        <span id="channelCount">القنوات (0)</span>
+        <button onclick="toggleView()" title="تغيير العرض"><i class="fas fa-th-list"></i></button>
+      </div>
+      <div class="channel-list" id="channelList">
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <span>جاري تحميل القنوات...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Area (Left in RTL - last in DOM) -->
+    <div class="player-area">
+      <div class="player-wrapper" id="playerWrapper">
+        <!-- Player overlay - shown when no channel selected -->
+        <div class="player-overlay" id="playerOverlay">
+          <div class="overlay-icon"><i class="fas fa-tv"></i></div>
+          <div class="overlay-text">اختر قناة للمشاهدة</div>
+        </div>
+        <video id="videoPlayer" playsinline></video>
+        <!-- Custom Controls -->
+        <div class="custom-controls">
+          <button onclick="togglePlay()" id="playBtn" title="تشغيل/إيقاف"><i class="fas fa-play"></i></button>
+          <button onclick="toggleMute()" id="muteBtn" title="كتم"><i class="fas fa-volume-up"></i></button>
+          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+          <div style="flex:1"></div>
+          <button onclick="togglePiP()" title="صورة في صورة"><i class="fas fa-external-link-alt"></i></button>
+          <button onclick="toggleFullscreen()" title="ملء الشاشة"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+      <!-- Player Engine Selector -->
+      <div class="player-engine-bar" id="engineBar">
+        <span class="engine-label"><i class="fas fa-cog"></i> المشغل:</span>
+        <button class="engine-btn active" data-engine="default" onclick="setPlayerEngine('default')">HLS</button>
+        <button class="engine-btn" data-engine="videojs" onclick="setPlayerEngine('videojs')">Video.js</button>
+        <button class="engine-btn" data-engine="plyr" onclick="setPlayerEngine('plyr')">Plyr</button>
+        <button class="engine-btn" data-engine="zwplayer" onclick="setPlayerEngine('zwplayer')">ZWPlayer</button>
+      </div>
+      <!-- Channel Info Bar -->
+      <div class="player-info" id="playerInfo" style="display:none">
+        <div class="info-logo" id="infoLogo"></div>
+        <div class="info-text">
+          <h3 id="infoName">-</h3>
+          <p id="infoCat">-</p>
+        </div>
+        <div class="player-controls">
+          <button onclick="toggleFavorite()" id="favBtnPlayer" title="إضافة للمفضلة"><i class="far fa-heart"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Bottom Bar -->
+  <div class="bottom-bar" id="bottomBar">
+    <button onclick="showMobileSearch()"><i class="fas fa-search"></i><span>بحث</span></button>
+    <button onclick="toggleFavorite()"><i class="far fa-heart"></i><span>المفضلة</span></button>
+    <button onclick="openMobileCategories()" class="active"><i class="fas fa-tv"></i><span>القنوات</span></button>
+  </div>
+
+  <!-- Mobile Category Drawer -->
+  <div class="sidebar-drawer-overlay" id="mobileDrawer" onclick="closeMobileCategories()">
+    <div class="sidebar-drawer" onclick="event.stopPropagation()">
+      <div class="sidebar-header" style="padding:1rem;border-bottom:1px solid var(--border)">
+        <i class="fas fa-layer-group"></i>
+        <span>التصنيفات</span>
+        <button onclick="closeMobileCategories()" style="margin-right:auto"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="category-list" id="mobileCategoryList"></div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/live.js"></script>
+  <script src="js/tv.js"></script>
+</body>
+</html>

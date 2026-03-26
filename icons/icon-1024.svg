@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f1f35"/>
+      <stop offset="100%" stop-color="#0a1628"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="90" fill="url(#bg)"/>
+  <rect x="80" y="115" width="352" height="220" rx="18" fill="#1a2d4a" stroke="#3b82f6" stroke-width="6"/>
+  <polygon points="225,185 225,290 305,237" fill="#3b82f6"/>
+  <rect x="180" y="340" width="152" height="14" rx="7" fill="#1a2d4a"/>
+  <rect x="210" y="354" width="92" height="28" rx="5" fill="#152238"/>
+  <line x1="195" y1="95" x2="235" y2="115" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <line x1="317" y1="95" x2="277" y2="115" stroke="#3b82f6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M340,80 Q360,60 380,80" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <path d="M348,65 Q368,40 388,65" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+  <circle cx="400" cy="140" r="8" fill="#ef4444"/>
+  <text x="256" y="430" text-anchor="middle" fill="#3b82f6" font-size="36" font-family="Arial" font-weight="bold" opacity="0.8">TV</text>
+</svg>

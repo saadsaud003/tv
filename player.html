@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <title>المشغل - تلفزيون العرب</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tv.css">
+  <!-- Video.js -->
+  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
+  <!-- Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <style>
+    /* Player Page Pro Styles */
+    .pro-player-page {
+      background: #000;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Player Container */
+    .pro-player-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      max-height: 65vh;
+      background: #000;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .pro-player-container iframe,
+    .pro-player-container video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      z-index: 1;
+    }
+
+    /* Top Overlay Bar */
+    .player-top-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .pro-player-container:hover .player-top-bar { opacity: 1; }
+    .player-top-bar .back-btn {
+      color: #fff;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.1);
+      transition: background 0.2s;
+    }
+    .player-top-bar .back-btn:hover { background: rgba(255,255,255,0.2); }
+    .player-top-bar .top-title {
+      flex: 1;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .player-top-bar .top-actions { display: flex; gap: 0.25rem; }
+    .player-top-bar .top-actions button {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 1rem;
+      transition: background 0.2s;
+    }
+    .player-top-bar .top-actions button:hover { background: rgba(255,255,255,0.15); }
+
+    /* Loading overlay in player */
+    .player-loading {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.7);
+      gap: 1rem;
+    }
+    .player-loading .spinner { width: 50px; height: 50px; border-width: 4px; }
+    .player-loading span { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+
+    /* Source bar */
+    .source-bar {
+      background: var(--bg-secondary);
+      padding: 0.6rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+    .source-bar::-webkit-scrollbar { height: 0; }
+    .source-bar .src-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .source-btn {
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+      flex-shrink: 0;
+    }
+    .source-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+    .source-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .source-btn.trailer-btn { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.3); }
+    .source-btn.trailer-btn:hover { background: rgba(239,68,68,0.25); }
+    .source-btn.newtab-btn { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
+    .source-btn.newtab-btn:hover { background: rgba(16,185,129,0.25); }
+
+    /* Engine source buttons */
+    .src-divider { color: var(--border); font-size: 0.9rem; margin: 0 0.3rem; flex-shrink: 0; user-select: none; }
+    .source-btn.engine-src { background: rgba(59,130,246,0.1); color: #3b82f6; border-color: rgba(59,130,246,0.25); }
+    .source-btn.engine-src:hover { background: rgba(59,130,246,0.2); color: #60a5fa; }
+    .source-btn.engine-src.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+    /* Info Section */
+    .pro-info {
+      flex: 1;
+      background: var(--bg-primary);
+      overflow-y: auto;
+    }
+    .pro-info-inner { padding: 1.25rem; }
+    .pro-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+    .pro-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.75rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .pro-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .pro-meta .rating { color: var(--accent-orange); font-weight: 700; }
+    .pro-overview {
+      font-size: 0.88rem;
+      line-height: 1.7;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+    }
+    .pro-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    /* Episodes section pro */
+    .pro-episodes { padding: 0 1.25rem 1.5rem; }
+    .pro-episodes h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+    }
+
+    /* Similar section */
+    .pro-similar { padding: 0 1.25rem 2rem; }
+    .pro-similar h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--text-secondary);
+    }
+
+    /* Error state */
+    .player-error {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.85);
+      gap: 0.75rem;
+      color: #fff;
+    }
+    .player-error i { font-size: 2.5rem; color: var(--accent-red); }
+    .player-error span { font-size: 0.9rem; color: rgba(255,255,255,0.7); }
+    .player-error .error-actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+
+    /* Subtitle Panel */
+    .sub-panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+    .sub-panel-overlay.open { opacity: 1; visibility: visible; }
+    .sub-panel {
+      position: fixed;
+      top: 0;
+      left: -420px;
+      width: 400px;
+      max-width: 85vw;
+      height: 100%;
+      background: var(--bg-secondary);
+      z-index: 201;
+      display: flex;
+      flex-direction: column;
+      transition: left 0.3s ease;
+      border-right: 1px solid var(--border);
+    }
+    .sub-panel-overlay.open .sub-panel { left: 0; }
+    .sub-panel-header {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-shrink: 0;
+    }
+    .sub-panel-header h3 { flex: 1; font-size: 1rem; font-weight: 700; }
+    .sub-panel-header button { font-size: 1.2rem; color: var(--text-muted); }
+    .sub-panel-header button:hover { color: var(--text-primary); }
+    .sub-lang-select {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .sub-lang-select label { font-size: 0.82rem; color: var(--text-muted); white-space: nowrap; }
+    .sub-lang-select select {
+      flex: 1;
+      padding: 0.4rem 0.6rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-size: 0.82rem;
+      outline: none;
+    }
+    .sub-lang-select button {
+      padding: 0.4rem 0.75rem;
+      background: var(--accent);
+      color: #fff;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .sub-results {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .sub-source-label {
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .sub-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .sub-item:hover { background: var(--bg-card-hover); }
+    .sub-item .sub-info { flex: 1; min-width: 0; }
+    .sub-item .sub-name { font-size: 0.82rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sub-item .sub-meta { font-size: 0.72rem; color: var(--text-muted); display: flex; gap: 0.5rem; }
+    .sub-item .sub-dl {
+      padding: 0.3rem 0.6rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xs);
+      font-size: 0.72rem;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .sub-item .sub-dl:hover { background: var(--accent); color: #fff; }
+    .sub-empty {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    @media (min-width: 1024px) {
+      .pro-player-container { max-height: 75vh; }
+    }
+    @media (max-width: 768px) {
+      .pro-player-container { max-height: 35vh; }
+      .pro-info-inner { padding: 1rem; }
+      .pro-title { font-size: 1.1rem; }
+      .sub-panel { width: 100%; max-width: 100%; left: -100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pro-player-page">
+
+    <!-- Player Area -->
+    <div class="pro-player-container" id="playerContainer">
+      <!-- Top Bar Overlay -->
+      <div class="player-top-bar" id="topBar">
+        <button class="back-btn" onclick="history.back()">
+          <i class="fas fa-arrow-right"></i> رجوع
+        </button>
+        <div class="top-title" id="topTitle">جاري التحميل...</div>
+        <div class="top-actions">
+          <button onclick="toggleFullscreen()" title="ملء الشاشة"><i class="fas fa-expand"></i></button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="player-loading" id="playerLoading">
+        <div class="spinner"></div>
+        <span>جاري تحميل المشغل...</span>
+      </div>
+
+      <!-- The iframe/video will be injected here -->
+    </div>
+
+    <!-- Source info bar -->
+    <div class="source-bar" id="sourceBar">
+      <span class="src-label"><i class="fas fa-server"></i> السيرفرات:</span>
+      <div id="sourceButtons" style="display:flex;gap:0.3rem;flex-wrap:nowrap"></div>
+      <span class="src-divider">|</span>
+      <span class="src-label"><i class="fas fa-play-circle"></i> المشغلات:</span>
+      <div id="engineButtons" style="display:flex;gap:0.3rem;flex-wrap:nowrap"></div>
+      <span style="flex:1"></span>
+      <button class="source-btn" onclick="openSubPanel()" title="الترجمات"><i class="fas fa-closed-captioning"></i> الترجمة</button>
+      <button class="source-btn newtab-btn" onclick="openInNewTab()" title="فتح في تبويب جديد"><i class="fas fa-external-link-alt"></i> تبويب جديد</button>
+      <button class="source-btn trailer-btn" id="trailerBtn" onclick="watchTrailer()" style="display:none"><i class="fas fa-film"></i> التريلر</button>
+    </div>
+
+    <!-- Info & Content -->
+    <div class="pro-info">
+      <!-- Loading state -->
+      <div class="loading-state" id="detailsLoading">
+        <div class="spinner"></div>
+        <span>جاري تحميل البيانات...</span>
+      </div>
+
+      <!-- Details -->
+      <div id="detailsContent" style="display:none">
+        <div class="pro-info-inner">
+          <h1 class="pro-title" id="mediaTitle"></h1>
+          <div class="pro-meta" id="mediaMeta"></div>
+          <p class="pro-overview" id="mediaOverview"></p>
+          <div class="pro-actions">
+            <button class="btn btn-secondary" id="favBtn" onclick="toggleFav()"><i class="far fa-heart"></i> المفضلة</button>
+            <button class="btn btn-secondary" onclick="shareMedia()"><i class="fas fa-share-alt"></i> مشاركة</button>
+          </div>
+        </div>
+
+        <!-- Episodes -->
+        <div class="pro-episodes" id="episodeSection" style="display:none">
+          <h3><i class="fas fa-list"></i> الحلقات</h3>
+          <div class="season-tabs" id="seasonTabs"></div>
+          <div class="episode-list" id="episodeList"></div>
+        </div>
+
+        <!-- Similar -->
+        <div class="pro-similar" id="similarSection">
+          <h3><i class="fas fa-th-large"></i> أعمال مشابهة</h3>
+          <div class="media-grid" id="similarGrid" style="padding:0"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtitle Panel (Substital-style) -->
+  <div class="sub-panel-overlay" id="subPanelOverlay" onclick="closeSubPanel()">
+    <div class="sub-panel" onclick="event.stopPropagation()">
+      <div class="sub-panel-header">
+        <i class="fas fa-closed-captioning" style="color:var(--accent)"></i>
+        <h3>الترجمات</h3>
+        <button onclick="closeSubPanel()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="sub-lang-select">
+        <label>اللغة:</label>
+        <select id="subLangSelect">
+          <option value="ara">العربية</option>
+          <option value="eng">الإنجليزية</option>
+          <option value="fre">الفرنسية</option>
+          <option value="tur">التركية</option>
+          <option value="spa">الإسبانية</option>
+          <option value="deu">الألمانية</option>
+          <option value="por">البرتغالية</option>
+          <option value="ita">الإيطالية</option>
+          <option value="rus">الروسية</option>
+          <option value="kor">الكورية</option>
+          <option value="jpn">اليابانية</option>
+          <option value="zho">الصينية</option>
+        </select>
+        <button onclick="searchSubtitles()"><i class="fas fa-search"></i> بحث</button>
+      </div>
+      <div class="sub-results" id="subResults">
+        <div class="sub-empty"><i class="fas fa-closed-captioning" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.5rem"></i>اضغط بحث للعثور على ترجمات</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
+  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
+  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/player.js"></script>
+  <script src="js/tv.js"></script>
+</body>
+</html>

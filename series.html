@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a1628">
+  <title>مسلسلات - تلفزيون العرب</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/tv.css">
+  <style>
+    .browse-layout { display: flex; height: calc(100vh - var(--navbar-h)); height: calc(100dvh - var(--navbar-h)); overflow: hidden; }
+    .browse-sidebar { width: var(--sidebar-w); background: var(--bg-secondary); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+    .browse-sidebar .sidebar-header { padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
+    .browse-sidebar .sidebar-list { flex: 1; overflow-y: auto; }
+    .browse-main { flex: 1; overflow-y: auto; min-width: 0; }
+    .adv-search { padding: 1rem 1.25rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .adv-search .search-box { flex: 1; min-width: 200px; max-width: none; }
+    .filter-select { padding: 0.45rem 0.75rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.82rem; outline: none; min-width: 100px; }
+    .filter-select:focus { border-color: var(--accent); }
+    .results-info { padding: 0.5rem 1.25rem; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    @media (max-width: 768px) {
+      .browse-sidebar { display: none; }
+      .adv-search { padding: 0.75rem; }
+      .browse-layout { height: calc(100vh - var(--navbar-h) - var(--bottom-nav-h)); height: calc(100dvh - var(--navbar-h) - var(--bottom-nav-h)); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="logo" title="الرئيسية">
+      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#1a2d4a"/><polygon points="16,12 16,28 28,20" fill="#3b82f6"/></svg>
+    </a>
+    <div class="nav-tabs">
+      <a href="index.html">الرئيسية</a>
+      <a href="live.html">بث مباشر</a>
+      <a href="movies.html">افلام</a>
+      <a href="series.html" class="active">مسلسلات</a>
+    </div>
+  </nav>
+
+  <div class="browse-layout">
+    <!-- Right Sidebar: Genres -->
+    <div class="browse-sidebar" id="genreSidebar">
+      <div class="sidebar-header"><i class="fas fa-tags"></i> التصنيفات</div>
+      <div class="sidebar-list" id="genreList">
+        <div class="loading-state"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="browse-main" id="browseMain">
+      <!-- Advanced Search Bar -->
+      <div class="adv-search">
+        <div class="search-box" style="max-width:none;flex:1">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="searchInput" placeholder="بحث عن مسلسل..." oninput="onSearch(this.value)">
+        </div>
+        <select class="filter-select" id="yearFilter" onchange="applyFilters()">
+          <option value="">كل السنوات</option>
+        </select>
+        <select class="filter-select" id="sortFilter" onchange="applyFilters()">
+          <option value="popular">الأكثر شعبية</option>
+          <option value="top_rated">الأعلى تقييماً</option>
+          <option value="on_the_air">يُعرض الآن</option>
+          <option value="airing_today">حلقات اليوم</option>
+        </select>
+        <select class="filter-select" id="langFilter" onchange="applyFilters()">
+          <option value="">كل اللغات</option>
+          <option value="subtitled_ar">🎬 مترجمة للعربية</option>
+          <option value="ar">العربية</option>
+          <option value="en">الإنجليزية</option>
+          <option value="fr">الفرنسية</option>
+          <option value="tr">التركية</option>
+          <option value="hi">الهندية</option>
+          <option value="ko">الكورية</option>
+          <option value="ja">اليابانية</option>
+        </select>
+      </div>
+
+      <!-- Results info -->
+      <div class="results-info" id="resultsInfo">
+        <span id="resultCount">جاري التحميل...</span>
+        <span id="activeGenre">الكل</span>
+      </div>
+
+      <!-- Series Grid -->
+      <div style="overflow-y:auto;flex:1;padding:1rem 1.25rem 5rem">
+        <div class="media-grid" id="seriesGrid" style="padding:0">
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+          <div class="media-card skeleton" style="aspect-ratio:2/3"></div>
+        </div>
+        <div class="load-more" id="loadMore">
+          <button onclick="loadNextPage()">تحميل المزيد</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav">
+    <a href="index.html"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+    <a href="live.html"><i class="fas fa-tv"></i><span>مباشر</span></a>
+    <a href="movies.html"><i class="fas fa-film"></i><span>أفلام</span></a>
+    <a href="series.html" class="active"><i class="fas fa-video"></i><span>مسلسلات</span></a>
+  </nav>
+
+  <div class="toast-container" id="toastContainer"></div>
+  <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
+  <script src="js/app.js"></script>
+  <script src="js/series.js"></script>
+  <script src="js/tv.js"></script>
+</body>
+</html>
