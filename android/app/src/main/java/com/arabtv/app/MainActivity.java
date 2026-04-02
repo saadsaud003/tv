@@ -2,11 +2,13 @@ package com.arabtv.app;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
@@ -92,6 +94,28 @@ public class MainActivity extends Activity {
 
         // تسريع العرض بالعتاد
         webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+
+        // جسر JavaScript لتشغيل ExoPlayer من الويب
+        webView.addJavascriptInterface(new ExoPlayerBridge(), "AndroidExoPlayer");
+    }
+
+    /**
+     * جسر JavaScript - يسمح لتطبيق الويب بتشغيل ExoPlayer الأصلي
+     * استخدام من JavaScript: AndroidExoPlayer.play(url, title)
+     */
+    private class ExoPlayerBridge {
+        @JavascriptInterface
+        public void play(String url, String title) {
+            Intent intent = new Intent(MainActivity.this, ExoPlayerActivity.class);
+            intent.putExtra("stream_url", url);
+            intent.putExtra("title", title);
+            startActivity(intent);
+        }
+
+        @JavascriptInterface
+        public boolean isAvailable() {
+            return true;
+        }
     }
 
     @Override

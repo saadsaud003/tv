@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0a1628">
-  <title>تلفزيون مباشر - تلفزيون العرب</title>
+  <meta name="theme-color" content="#060d18">
+  <title> IPTVالمسودي </title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,162 +12,430 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/tv.css">
-  <!-- Video.js -->
-  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
-  <!-- Plyr -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
   <style>
+    /* ── Background & Base ── */
+    .live-page {
+      display: flex;
+      flex-direction: column;
+      height: 100vh; height: 100dvh;
+      overflow: hidden;
+      background: url('img/bk.jpg') center/cover no-repeat fixed, linear-gradient(135deg, #0a1628 0%, #0d1f3c 40%, #132744 70%, #0a1628 100%);
+      position: relative;
+    }
+    .live-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(6, 13, 24, 0.35);
+      z-index: 0;
+    }
+    .live-page > * { position: relative; z-index: 1; }
+
+    /* ── Navbar glass ── */
+    .live-page .navbar {
+      background: rgba(6, 13, 24, 0.35);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    /* ── 3-Column Main Layout ── */
+    .live-main {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+    }
+
+    /* ── Categories Panel (RIGHT in RTL) ── */
+    .categories-panel {
+      width: 210px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(8, 16, 32, 0.35);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .panel-header {
+      padding: 0.7rem 1rem;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+      background: rgba(0,0,0,0.1);
+    }
+    .cat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.4rem;
+    }
+    .cat-list::-webkit-scrollbar { width: 2px; }
+    .cat-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.5rem 0.7rem;
+      margin-bottom: 0.2rem;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.25s;
+      font-size: 0.8rem;
+    }
+    .cat-item:hover {
+      background: rgba(255,255,255,0.07);
+      border-color: rgba(255,255,255,0.08);
+    }
+    .cat-item.active {
+      background: rgba(232, 145, 12, 0.2);
+      border-color: rgba(232, 145, 12, 0.4);
+      box-shadow: 0 0 20px rgba(232, 145, 12, 0.1);
+    }
+    .cat-item i {
+      width: 18px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .cat-item.active i { color: var(--accent); }
+    .cat-name { flex: 1; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cat-count {
+      background: rgba(255,255,255,0.07);
+      padding: 0.08rem 0.45rem;
+      border-radius: 10px;
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      min-width: 26px;
+      text-align: center;
+    }
+    .cat-item.active .cat-count {
+      background: rgba(232, 145, 12, 0.3);
+      color: #fff;
+    }
+
+    /* ── Channels Panel (MIDDLE) ── */
+    .channels-panel {
+      width: 330px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      background: rgba(8, 16, 32, 0.3);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-left: 1px solid rgba(255,255,255,0.08);
+    }
+    .channels-panel .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .ch-search {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.25rem 0.55rem;
+      flex: 1;
+      margin-right: 0.6rem;
+      transition: border-color 0.2s;
+    }
+    .ch-search:focus-within { border-color: rgba(232, 145, 12, 0.4); }
+    .ch-search i { color: var(--text-muted); font-size: 0.75rem; }
+    .ch-search input {
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      font-size: 0.78rem;
+      width: 100%;
+      outline: none;
+      font-family: inherit;
+    }
+    .ch-search input::placeholder { color: var(--text-muted); }
+
+    .channel-list-wrap {
+      flex: 1;
+      overflow-y: auto;
+    }
+    .channel-list-wrap::-webkit-scrollbar { width: 2px; }
+    .channel-list-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+    .ch-list-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.5rem 0.7rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ch-list-item:hover {
+      background: rgba(232, 145, 12, 0.06);
+    }
+    .ch-list-item.active {
+      background: rgba(232, 145, 12, 0.12);
+      border-right: 3px solid var(--accent);
+    }
+    .ch-num {
+      width: 22px;
+      text-align: center;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .ch-list-logo {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ch-list-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .ch-list-logo i { font-size: 0.9rem; color: var(--text-muted); }
+    .ch-list-info { flex: 1; min-width: 0; }
+    .ch-list-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ch-list-sub {
+      font-size: 0.66rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── Player Section (LEFT in RTL) ── */
+    .player-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      min-width: 0;
+    }
+    .player-section .player-wrapper {
+      flex: 1;
+      background: #000;
+      position: relative;
+      overflow: hidden;
+    }
+    .player-section video { width: 100%; height: 100%; object-fit: contain; }
+
+    /* Channel Info Strip */
+    .channel-info-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1.25rem;
+      background: rgba(6, 13, 24, 0.4);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .channel-info-strip .info-logo {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: rgba(255,255,255,0.05);
+      flex-shrink: 0;
+    }
+    .channel-info-strip .info-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .channel-info-strip .info-name { font-weight: 700; font-size: 1rem; }
+    .channel-info-strip .info-cat { font-size: 0.78rem; color: var(--text-muted); }
+    .channel-info-strip .info-actions { margin-right: auto; display: flex; gap: 0.5rem; }
+    .channel-info-strip .info-actions button {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-secondary);
+      transition: all 0.2s;
+    }
+    .channel-info-strip .info-actions button:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    /* Engine Bar */
     .player-engine-bar {
-      background: var(--bg-secondary);
-      padding: 0.4rem 0.75rem;
+      background: rgba(6, 13, 24, 0.4);
+      backdrop-filter: blur(16px);
+      padding: 0.35rem 1rem;
       display: flex;
       align-items: center;
       gap: 0.4rem;
-      border-top: 1px solid var(--border);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
       overflow-x: auto;
     }
     .player-engine-bar::-webkit-scrollbar { height: 0; }
-    .engine-label {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
+    .engine-label { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
     .engine-btn {
-      padding: 0.25rem 0.65rem;
-      border-radius: 5px;
-      font-size: 0.75rem;
+      padding: 0.22rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.72rem;
       font-weight: 600;
       white-space: nowrap;
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-secondary);
-      border: 1px solid var(--border);
+      border: 1px solid rgba(255, 255, 255, 0.08);
       transition: all 0.2s;
       cursor: pointer;
       flex-shrink: 0;
     }
-    .engine-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+    .engine-btn:hover { background: rgba(255,255,255,0.12); color: var(--text-primary); }
     .engine-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    /* Video.js overrides for RTL */
-    .video-js { direction: ltr; }
-    .video-js .vjs-big-play-button { z-index: 5; }
-    /* Plyr overrides */
-    .plyr { --plyr-color-main: var(--accent, #3b82f6); }
+
+    /* ── Responsive ── */
+    @media (max-width: 1023px) {
+      .live-main { flex-direction: column; }
+
+      .categories-panel {
+        width: 100%;
+        flex-direction: row;
+        border-left: none;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        order: 2;
+      }
+      .categories-panel .panel-header { display: none; }
+      .cat-list {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 0.4rem 0.5rem;
+        gap: 0.3rem;
+        scrollbar-width: none;
+      }
+      .cat-list::-webkit-scrollbar { display: none; }
+      .cat-item { white-space: nowrap; margin-bottom: 0; flex-shrink: 0; }
+
+      .channels-panel {
+        width: 100%;
+        flex: 1;
+        border-left: none;
+        order: 3;
+      }
+
+      .player-section {
+        order: 1;
+        flex: none;
+        max-height: 35vh;
+      }
+      .player-section .player-wrapper { height: 100%; flex: none; }
+
+      .channel-list-wrap { padding-bottom: calc(var(--bottom-nav-h, 60px) + 0.5rem); }
+    }
+    @media (min-width: 1400px) {
+      .categories-panel { width: 240px; }
+      .channels-panel { width: 370px; }
+    }
   </style>
 </head>
 <body>
-  <!-- Navbar -->
-  <nav class="navbar">
-    <a href="index.html" class="logo" title="الرئيسية">
-      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#1a2d4a"/><polygon points="16,12 16,28 28,20" fill="#3b82f6"/></svg>
-    </a>
-    <div class="search-box">
-      <i class="fas fa-search search-icon"></i>
-      <input type="text" id="searchInput" placeholder="بحث عن قناة..." oninput="filterChannels(this.value)">
+  <div class="live-page">
+    <!-- Navbar -->
+    <nav class="navbar">
+      <a href="index.html" class="nav-back" title="رجوع"><i class="fas fa-arrow-right"></i> رجوع</a>
+      <a href="index.html" class="logo" title="الرئيسية">
+        <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#0a1525"/><polygon points="16,12 16,28 28,20" fill="#e8910c"/></svg>
+      </a>
+      <div class="nav-tabs">
+        <a href="index.html">الرئيسية</a>
+        <a href="live.html" class="active">بث مباشر</a>
+        <a href="movies.html">افلام</a>
+        <a href="series.html">مسلسلات</a>
+      </div>
+    </nav>
+
+    <div class="live-main">
+      <!-- Categories Panel - RIGHT -->
+      <div class="categories-panel">
+        <div class="panel-header"><i class="fas fa-th-list"></i> التصنيفات</div>
+        <div class="cat-list" id="categoryTabs">
+          <div style="padding:1rem;text-align:center"><div class="spinner" style="width:24px;height:24px;margin:auto"></div></div>
+        </div>
+      </div>
+
+      <!-- Channels Panel - MIDDLE -->
+      <div class="channels-panel">
+        <div class="panel-header">
+          <span id="channelCount" style="white-space:nowrap;font-size:0.82rem">القنوات (0)</span>
+          <div class="ch-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="بحث عن قناة..." oninput="filterChannels(this.value)">
+          </div>
+        </div>
+        <div class="channel-list-wrap" id="channelGridWrap">
+          <div id="channelList">
+            <div class="loading-state" style="padding:2rem">
+              <div class="spinner"></div>
+              <span>جاري تحميل القنوات...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Player Section - LEFT -->
+      <div class="player-section" id="playerSection">
+        <div class="player-wrapper" id="playerWrapper">
+          <div class="player-overlay" id="playerOverlay">
+            <div class="overlay-icon"><i class="fas fa-tv"></i></div>
+            <div class="overlay-text">اختر قناة للمشاهدة</div>
+          </div>
+          <video id="videoPlayer" playsinline></video>
+          <div class="custom-controls">
+            <button onclick="togglePlay()" id="playBtn" title="تشغيل/إيقاف"><i class="fas fa-play"></i></button>
+            <button onclick="toggleMute()" id="muteBtn" title="كتم"><i class="fas fa-volume-up"></i></button>
+            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
+            <div style="flex:1"></div>
+            <button onclick="togglePiP()" title="صورة في صورة"><i class="fas fa-external-link-alt"></i></button>
+            <button onclick="toggleFullscreen()" title="ملء الشاشة"><i class="fas fa-expand"></i></button>
+          </div>
+        </div>
+        <!-- Channel Info -->
+        <div class="channel-info-strip" id="playerInfo" style="display:none">
+          <div class="info-logo" id="infoLogo"></div>
+          <div>
+            <div class="info-name" id="infoName">-</div>
+            <div class="info-cat" id="infoCat">-</div>
+          </div>
+          <div class="info-actions">
+            <button onclick="toggleFavorite()" id="favBtnPlayer" title="المفضلة"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+        <!-- Engine Selector -->
+        <div class="player-engine-bar" id="engineBar">
+          <span class="engine-label"><i class="fas fa-cog"></i> المشغل:</span>
+          <button class="engine-btn active" data-engine="default" onclick="setPlayerEngine('default')">HLS</button>
+          <button class="engine-btn" data-engine="exoplayer" onclick="setPlayerEngine('exoplayer')">ExoPlayer</button>
+          <button class="engine-btn" data-engine="zwplayer" onclick="setPlayerEngine('zwplayer')">ZWPlayer</button>
+        </div>
+      </div>
     </div>
-    <div class="nav-tabs">
-      <a href="index.html">بحث</a>
-      <a href="live.html" class="active">بث مباشر</a>
-      <a href="movies.html">افلام</a>
-      <a href="series.html">مسلسلات</a>
-    </div>
+  </div>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav">
+    <a href="index.html"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+    <a href="live.html" class="active"><i class="fas fa-tv"></i><span>مباشر</span></a>
+    <a href="movies.html"><i class="fas fa-film"></i><span>أفلام</span></a>
+    <a href="series.html"><i class="fas fa-video"></i><span>مسلسلات</span></a>
   </nav>
 
-  <!-- Main Layout: RTL = first item on right -->
-  <div class="live-container">
-    <!-- Category Sidebar (Right in RTL - first in DOM) -->
-    <div class="category-sidebar" id="categorySidebar">
-      <div class="sidebar-header">
-        <i class="fas fa-layer-group"></i>
-        <span>التصنيفات</span>
-      </div>
-      <div class="category-list" id="categoryList">
-        <div class="loading-state">
-          <div class="spinner"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Channel List (Middle) -->
-    <div class="channel-panel">
-      <div class="panel-header">
-        <span id="channelCount">القنوات (0)</span>
-        <button onclick="toggleView()" title="تغيير العرض"><i class="fas fa-th-list"></i></button>
-      </div>
-      <div class="channel-list" id="channelList">
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <span>جاري تحميل القنوات...</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Player Area (Left in RTL - last in DOM) -->
-    <div class="player-area">
-      <div class="player-wrapper" id="playerWrapper">
-        <!-- Player overlay - shown when no channel selected -->
-        <div class="player-overlay" id="playerOverlay">
-          <div class="overlay-icon"><i class="fas fa-tv"></i></div>
-          <div class="overlay-text">اختر قناة للمشاهدة</div>
-        </div>
-        <video id="videoPlayer" playsinline></video>
-        <!-- Custom Controls -->
-        <div class="custom-controls">
-          <button onclick="togglePlay()" id="playBtn" title="تشغيل/إيقاف"><i class="fas fa-play"></i></button>
-          <button onclick="toggleMute()" id="muteBtn" title="كتم"><i class="fas fa-volume-up"></i></button>
-          <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)">
-          <div style="flex:1"></div>
-          <button onclick="togglePiP()" title="صورة في صورة"><i class="fas fa-external-link-alt"></i></button>
-          <button onclick="toggleFullscreen()" title="ملء الشاشة"><i class="fas fa-expand"></i></button>
-        </div>
-      </div>
-      <!-- Player Engine Selector -->
-      <div class="player-engine-bar" id="engineBar">
-        <span class="engine-label"><i class="fas fa-cog"></i> المشغل:</span>
-        <button class="engine-btn active" data-engine="default" onclick="setPlayerEngine('default')">HLS</button>
-        <button class="engine-btn" data-engine="videojs" onclick="setPlayerEngine('videojs')">Video.js</button>
-        <button class="engine-btn" data-engine="plyr" onclick="setPlayerEngine('plyr')">Plyr</button>
-        <button class="engine-btn" data-engine="zwplayer" onclick="setPlayerEngine('zwplayer')">ZWPlayer</button>
-      </div>
-      <!-- Channel Info Bar -->
-      <div class="player-info" id="playerInfo" style="display:none">
-        <div class="info-logo" id="infoLogo"></div>
-        <div class="info-text">
-          <h3 id="infoName">-</h3>
-          <p id="infoCat">-</p>
-        </div>
-        <div class="player-controls">
-          <button onclick="toggleFavorite()" id="favBtnPlayer" title="إضافة للمفضلة"><i class="far fa-heart"></i></button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Mobile Bottom Bar -->
-  <div class="bottom-bar" id="bottomBar">
-    <button onclick="showMobileSearch()"><i class="fas fa-search"></i><span>بحث</span></button>
-    <button onclick="toggleFavorite()"><i class="far fa-heart"></i><span>المفضلة</span></button>
-    <button onclick="openMobileCategories()" class="active"><i class="fas fa-tv"></i><span>القنوات</span></button>
-  </div>
-
-  <!-- Mobile Category Drawer -->
-  <div class="sidebar-drawer-overlay" id="mobileDrawer" onclick="closeMobileCategories()">
-    <div class="sidebar-drawer" onclick="event.stopPropagation()">
-      <div class="sidebar-header" style="padding:1rem;border-bottom:1px solid var(--border)">
-        <i class="fas fa-layer-group"></i>
-        <span>التصنيفات</span>
-        <button onclick="closeMobileCategories()" style="margin-right:auto"><i class="fas fa-times"></i></button>
-      </div>
-      <div class="category-list" id="mobileCategoryList"></div>
-    </div>
-  </div>
-
   <div class="toast-container" id="toastContainer"></div>
-
   <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script src="js/app.js"></script>
   <script src="js/live.js"></script>
   <script src="js/tv.js"></script>

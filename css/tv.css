@@ -1,61 +1,40 @@
 /* ===========================
    Arab TV - Smart TV Styles
-   10-foot UI, Focus States,
-   Overscan Safe Area, D-pad Nav
+   Glass Focus, D-pad Nav,
+   10-foot UI, Overscan Safe
    =========================== */
 
-/* ── TV Mode Detection ── */
+/* -- TV Mode Detection -- */
 .tv-mode {
-  --tv-focus-color: #3b82f6;
-  --tv-focus-glow: 0 0 0 3px rgba(59,130,246,0.5), 0 0 20px rgba(59,130,246,0.3);
+  --tv-focus-color: #e8910c;
+  --tv-focus-glow: 0 0 0 3px rgba(232, 145, 12, 0.5), 0 0 28px rgba(232, 145, 12, 0.35);
   --tv-overscan: 2.5%;
   cursor: none;
 }
 
-/* ── Overscan Safe Area ── */
+/* -- Overscan Safe Area -- */
 .tv-mode .home-container,
 .tv-mode .live-container,
 .tv-mode .browse-layout,
-.tv-mode .pro-player-page {
-  margin: 0;
-}
+.tv-mode .pro-player-page { margin: 0; }
 .tv-mode .navbar {
   padding-right: var(--tv-overscan);
   padding-left: var(--tv-overscan);
 }
 
-/* ── Larger Text for TV distance ── */
-.tv-mode {
-  font-size: 16px;
-}
-.tv-mode .navbar {
-  height: 64px;
-}
+/* -- Larger Text for TV distance -- */
+.tv-mode { font-size: 16px; }
+.tv-mode .navbar { height: 64px; }
 .tv-mode .nav-tabs a,
-.tv-mode .nav-tabs button {
-  padding: 0.6rem 1.5rem;
-  font-size: 1.1rem;
-}
-.tv-mode .ch-name {
-  font-size: 1.05rem;
-}
-.tv-mode .ch-cat {
-  font-size: 0.85rem;
-}
-.tv-mode .category-item .cat-name {
-  font-size: 1rem;
-}
-.tv-mode .card-title {
-  font-size: 0.95rem;
-}
-.tv-mode .card-label {
-  font-size: 1.6rem;
-}
+.tv-mode .nav-tabs button { padding: 0.6rem 1.5rem; font-size: 1.1rem; }
+.tv-mode .ch-name { font-size: 1.05rem; }
+.tv-mode .ch-cat { font-size: 0.85rem; }
+.tv-mode .category-item .cat-name { font-size: 1rem; }
+.tv-mode .card-title { font-size: 0.95rem; }
+.tv-mode .card-label { font-size: 1.6rem; }
 
-/* ── Focus Ring (Critical for TV) ── */
-.tv-mode *:focus {
-  outline: none;
-}
+/* -- Focus Ring (Critical for TV) -- */
+.tv-mode *:focus { outline: none; }
 .tv-mode *:focus-visible {
   outline: 3px solid var(--tv-focus-color);
   outline-offset: 2px;
@@ -65,143 +44,217 @@
 }
 
 /* Home cards focus */
+.tv-mode .home-card:focus,
 .tv-mode .home-card:focus-visible {
   outline: 4px solid #fff;
   outline-offset: 4px;
-  box-shadow: 0 0 0 6px rgba(59,130,246,0.4), 0 0 30px rgba(59,130,246,0.5);
+  box-shadow: 0 0 0 6px rgba(232, 145, 12, 0.4), 0 0 40px rgba(232, 145, 12, 0.4);
   transform: translateY(-6px) scale(1.04);
 }
 
 /* Channel items focus */
+.tv-mode .channel-item:focus,
 .tv-mode .channel-item:focus-visible {
-  background: var(--bg-card-active);
+  background: rgba(232, 145, 12, 0.15);
   border-right: 4px solid var(--tv-focus-color);
   outline: 2px solid var(--tv-focus-color);
   outline-offset: -2px;
 }
 
 /* Category items focus */
+.tv-mode .category-item:focus,
 .tv-mode .category-item:focus-visible {
-  background: var(--bg-card-active);
+  background: rgba(232, 145, 12, 0.15);
   border-right: 4px solid var(--tv-focus-color);
   outline: 2px solid var(--tv-focus-color);
   outline-offset: -2px;
 }
 
 /* Media cards focus */
+.tv-mode .media-card:focus,
 .tv-mode .media-card:focus-visible {
   outline: 3px solid var(--tv-focus-color);
   outline-offset: 3px;
   box-shadow: var(--tv-focus-glow);
   transform: translateY(-6px) scale(1.05);
 }
-.tv-mode .media-card:focus-visible .play-overlay {
-  opacity: 1;
-}
+.tv-mode .media-card:focus .play-overlay,
+.tv-mode .media-card:focus-visible .play-overlay { opacity: 1; }
 
 /* Episode items focus */
+.tv-mode .episode-item:focus,
 .tv-mode .episode-item:focus-visible {
   outline: 2px solid var(--tv-focus-color);
-  background: var(--bg-card-active);
+  background: rgba(232, 145, 12, 0.1);
 }
 
 /* Season tabs focus */
+.tv-mode .season-tab:focus,
 .tv-mode .season-tab:focus-visible {
   outline: 2px solid var(--tv-focus-color);
   outline-offset: 2px;
 }
 
-/* Buttons focus */
+/* All buttons focus */
+.tv-mode button:focus,
 .tv-mode button:focus-visible,
+.tv-mode .btn:focus,
 .tv-mode .btn:focus-visible,
-.tv-mode .source-btn:focus-visible {
+.tv-mode .source-btn:focus,
+.tv-mode .source-btn:focus-visible,
+.tv-mode .engine-btn:focus,
+.tv-mode .engine-btn:focus-visible {
   outline: 3px solid var(--tv-focus-color);
   outline-offset: 2px;
   box-shadow: var(--tv-focus-glow);
 }
 
 /* Nav links focus */
+.tv-mode .nav-tabs a:focus,
 .tv-mode .nav-tabs a:focus-visible {
   outline: 2px solid var(--tv-focus-color);
   outline-offset: 2px;
-  background: rgba(59,130,246,0.15);
+  background: rgba(232, 145, 12, 0.15);
   border-radius: 8px;
 }
 
+/* Back button focus */
+.tv-mode .nav-back:focus,
+.tv-mode .nav-back:focus-visible,
+.tv-mode .back-btn:focus,
+.tv-mode .back-btn:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 2px;
+  box-shadow: var(--tv-focus-glow);
+  background: rgba(232, 145, 12, 0.2);
+}
+
 /* Genre sidebar items focus */
+.tv-mode .browse-sidebar .category-item:focus,
 .tv-mode .browse-sidebar .category-item:focus-visible {
-  background: var(--bg-card-active);
+  background: rgba(232, 145, 12, 0.15);
   outline: 2px solid var(--tv-focus-color);
 }
 
 /* Select/input focus on TV */
+.tv-mode select:focus,
 .tv-mode select:focus-visible,
+.tv-mode input:focus,
 .tv-mode input:focus-visible {
-  border: 2px solid var(--tv-focus-color);
+  border: 2px solid var(--tv-focus-color) !important;
   box-shadow: var(--tv-focus-glow);
 }
 
-/* ── TV Home Page ── */
-.tv-mode .home-cards {
-  gap: 2rem;
-}
-.tv-mode .home-card {
-  width: 380px;
-  height: 260px;
-}
-.tv-mode .home-card .card-icon svg {
-  width: 90px;
-  height: 90px;
+/* Filter selects focus */
+.tv-mode .filter-select:focus,
+.tv-mode .filter-select:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 1px;
+  box-shadow: var(--tv-focus-glow);
 }
 
-/* ── TV Live Layout ── */
-.tv-mode .live-container {
-  height: calc(100vh - 64px);
-  height: calc(100dvh - 64px);
-}
-.tv-mode .channel-item {
-  padding: 0.75rem 1rem;
-}
-.tv-mode .channel-item .ch-logo {
-  width: 48px;
-  height: 48px;
-}
-.tv-mode .category-item {
-  padding: 0.85rem 1rem;
+/* Load more button */
+.tv-mode .load-more button:focus,
+.tv-mode .load-more button:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  box-shadow: var(--tv-focus-glow);
+  background: rgba(232, 145, 12, 0.15);
 }
 
-/* ── TV Player Page ── */
-.tv-mode .pro-player-container {
-  max-height: 80vh;
-}
-.tv-mode .source-bar {
-  padding: 0.75rem 1.25rem;
-}
-.tv-mode .source-btn {
-  padding: 0.5rem 1.1rem;
-  font-size: 0.9rem;
+/* Player controls buttons */
+.tv-mode .player-controls button:focus,
+.tv-mode .player-controls button:focus-visible,
+.tv-mode .custom-controls button:focus,
+.tv-mode .custom-controls button:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  box-shadow: var(--tv-focus-glow);
+  background: rgba(232, 145, 12, 0.3);
 }
 
-/* ── TV Media Grid ── */
+/* Subtitle items */
+.tv-mode .sub-item:focus,
+.tv-mode .sub-item:focus-visible {
+  outline: 2px solid var(--tv-focus-color);
+  background: rgba(232, 145, 12, 0.1);
+}
+
+/* -- TV Home Page -- */
+.tv-mode .home-cards { gap: 2rem; }
+.tv-mode .home-card { width: 380px; height: 260px; }
+.tv-mode .home-card .card-icon svg { width: 90px; height: 90px; }
+
+/* -- TV Channel Grid items focus -- */
+.tv-mode .ch-grid-item:focus,
+.tv-mode .ch-grid-item:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 2px;
+  box-shadow: var(--tv-focus-glow);
+  transform: translateY(-4px) scale(1.05);
+}
+
+/* -- TV Category Tab focus -- */
+.tv-mode .cat-tab:focus,
+.tv-mode .cat-tab:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 2px;
+  box-shadow: var(--tv-focus-glow);
+}
+
+/* -- TV Quick Nav focus -- */
+.tv-mode .quick-nav-card:focus,
+.tv-mode .quick-nav-card:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 3px;
+  box-shadow: var(--tv-focus-glow);
+  transform: translateY(-4px);
+}
+
+/* -- TV Scroll Card focus -- */
+.tv-mode .scroll-card:focus,
+.tv-mode .scroll-card:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 3px;
+  box-shadow: var(--tv-focus-glow);
+  transform: translateY(-6px) scale(1.06);
+}
+.tv-mode .scroll-card:focus .scroll-card-overlay { opacity: 1; }
+
+/* -- TV Channel Card focus -- */
+.tv-mode .channel-card:focus,
+.tv-mode .channel-card:focus-visible {
+  outline: 3px solid var(--tv-focus-color);
+  outline-offset: 2px;
+  box-shadow: var(--tv-focus-glow);
+  transform: translateY(-4px);
+}
+
+/* -- TV Live Layout -- */
+.tv-mode .ch-grid-item { padding: 1rem 0.5rem; }
+.tv-mode .ch-grid-logo { width: 64px; height: 64px; }
+.tv-mode .ch-grid-name { font-size: 0.9rem; }
+.tv-mode .cat-tab { font-size: 0.95rem; padding: 0.5rem 1.1rem; }
+
+/* -- TV Player Page -- */
+.tv-mode .pro-player-container { max-height: 80vh; }
+.tv-mode .source-bar { padding: 0.75rem 1.25rem; }
+.tv-mode .source-btn { padding: 0.5rem 1.1rem; font-size: 0.9rem; }
+
+/* Always show player top bar on TV */
+.tv-mode .player-top-bar { opacity: 1 !important; }
+.tv-mode .custom-controls { opacity: 1 !important; }
+
+/* -- TV Media Grid -- */
 .tv-mode .media-grid {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1.5rem;
 }
 
-/* ── TV Settings ── */
-.tv-mode .modal {
-  max-width: 600px;
-  font-size: 1rem;
-}
-.tv-mode .setting-group label {
-  font-size: 1rem;
-}
-.tv-mode .setting-group select {
-  font-size: 1rem;
-  padding: 0.65rem;
-}
+/* -- TV Settings -- */
+.tv-mode .modal { max-width: 600px; font-size: 1rem; }
+.tv-mode .setting-group label { font-size: 1rem; }
+.tv-mode .setting-group select { font-size: 1rem; padding: 0.65rem; }
 
-/* ── TV Mode Toggle Button ── */
+/* -- TV Mode Toggle Button -- */
 .tv-toggle {
   position: fixed;
   bottom: 1rem;
@@ -209,8 +262,10 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -220,92 +275,92 @@
   transition: all 0.2s;
   cursor: pointer;
 }
-.tv-toggle:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.tv-toggle:hover { background: rgba(255, 255, 255, 0.15); color: var(--text-primary); }
 .tv-mode .tv-toggle { color: var(--accent); border-color: var(--accent); }
 
-/* ── TV Install Banner ── */
+/* -- TV Install Banner -- */
 .tv-mode .install-banner {
   bottom: 2rem;
   padding: 1.5rem 2rem;
   font-size: 1.1rem;
   max-width: 600px;
 }
-.tv-mode .install-banner .btn {
-  padding: 0.75rem 2rem;
-  font-size: 1rem;
-}
+.tv-mode .install-banner .btn { padding: 0.75rem 2rem; font-size: 1rem; }
 
-/* ── Hide elements on TV ── */
+/* -- Hide elements on TV -- */
 .tv-mode .mobile-nav,
-.tv-mode .bottom-bar {
-  display: none !important;
-}
-.tv-mode .nav-tabs {
-  display: flex !important;
-}
+.tv-mode .bottom-bar { display: none !important; }
+.tv-mode .nav-tabs { display: flex !important; }
 
-/* ── Toast on TV ── */
-.tv-mode .toast {
+/* -- Toast on TV -- */
+.tv-mode .toast { font-size: 1rem; padding: 0.8rem 1.5rem; }
+
+/* -- TV Subtitle Panel -- */
+.tv-mode .sub-panel { font-size: 1rem; }
+.tv-mode .sub-panel .sub-item { padding: 0.85rem 1rem; }
+
+/* -- Performance: disable heavy effects on TV -- */
+.tv-mode *,
+.tv-mode *::before,
+.tv-mode *::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+.tv-mode body::before { opacity: 0.15; }
+.tv-mode body::after { display: none; }
+.tv-mode .navbar,
+.tv-mode .category-sidebar,
+.tv-mode .channel-panel,
+.tv-mode .browse-sidebar,
+.tv-mode .player-info { background: rgba(6, 13, 24, 0.95) !important; }
+
+/* -- Scrollbar hidden on TV -- */
+.tv-mode ::-webkit-scrollbar { width: 4px; }
+.tv-mode ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); }
+
+/* -- TV Back Button always visible -- */
+.tv-mode .nav-back {
   font-size: 1rem;
-  padding: 0.8rem 1.5rem;
+  padding: 0.5rem 1.2rem;
+  background: rgba(232, 145, 12, 0.2);
+  border-color: rgba(232, 145, 12, 0.4);
+  color: #fff;
+}
+.tv-mode .nav-back:focus,
+.tv-mode .nav-back:focus-visible {
+  background: rgba(232, 145, 12, 0.4);
+  transform: scale(1.05);
 }
 
-/* ── TV Subtitle Panel ── */
-.tv-mode .sub-panel {
+/* -- TV Filter selects -- */
+.tv-mode .filter-select {
   font-size: 1rem;
+  padding: 0.6rem 0.9rem;
+  min-width: 140px;
 }
-.tv-mode .sub-panel .sub-item {
-  padding: 0.85rem 1rem;
-}
-
-/* ── Scrollbar hidden on TV ── */
-.tv-mode ::-webkit-scrollbar {
-  width: 4px;
-}
-.tv-mode ::-webkit-scrollbar-thumb {
-  background: rgba(255,255,255,0.15);
+.tv-mode .adv-search {
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
 }
 
-/* ── TV Responsive (large screens) ── */
+/* -- TV Responsive (large screens) -- */
 @media (min-width: 1920px) {
-  .tv-mode {
-    font-size: 18px;
-  }
-  .tv-mode .home-card {
-    width: 440px;
-    height: 300px;
-  }
+  .tv-mode { font-size: 18px; }
+  .tv-mode .home-card { width: 440px; height: 300px; }
   .tv-mode .media-grid {
     grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 2rem;
   }
-  .tv-mode .channel-item .ch-logo {
-    width: 56px;
-    height: 56px;
-  }
-  .tv-mode .navbar {
-    height: 72px;
-  }
-  .tv-mode .nav-tabs a {
-    font-size: 1.2rem;
-    padding: 0.7rem 2rem;
-  }
+  .tv-mode .channel-item .ch-logo { width: 56px; height: 56px; }
+  .tv-mode .navbar { height: 72px; }
+  .tv-mode .nav-tabs a { font-size: 1.2rem; padding: 0.7rem 2rem; }
+  .tv-mode .nav-back { font-size: 1.1rem; padding: 0.6rem 1.5rem; }
 }
 
-/* ── 4K TV ── */
+/* -- 4K TV -- */
 @media (min-width: 3200px) {
-  .tv-mode {
-    font-size: 24px;
-  }
-  .tv-mode .home-card {
-    width: 600px;
-    height: 400px;
-  }
-  .tv-mode .home-card .card-icon svg {
-    width: 120px;
-    height: 120px;
-  }
-  .tv-mode .card-label {
-    font-size: 2.2rem;
-  }
+  .tv-mode { font-size: 24px; }
+  .tv-mode .home-card { width: 600px; height: 400px; }
+  .tv-mode .home-card .card-icon svg { width: 120px; height: 120px; }
+  .tv-mode .card-label { font-size: 2.2rem; }
 }

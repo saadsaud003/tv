@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0a1628">
+  <meta name="theme-color" content="#060d18">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="تطبيق مشاهدة القنوات الفضائية العربية والأفلام والمسلسلات">
-  <title>تلفزيون العرب</title>
+  <title> IPTVالمسودي </title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,41 +16,404 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/tv.css">
+  <style>
+    /* Hero Banner */
+    .hero-banner {
+      position: relative;
+      width: 100%;
+      height: 70vh;
+      min-height: 400px;
+      max-height: 600px;
+      background: var(--bg-primary) center/cover no-repeat;
+      overflow: hidden;
+      transition: background-image 0.5s;
+    }
+    .hero-banner .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, var(--bg-primary) 0%, rgba(6, 13, 24, 0.4) 40%, rgba(6, 13, 24, 0.2) 100%);
+    }
+    .hero-banner .hero-content {
+      position: absolute;
+      bottom: 2.5rem;
+      right: 3rem;
+      left: 3rem;
+      z-index: 2;
+      max-width: 700px;
+    }
+    .hero-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.8);
+      margin-bottom: 0.75rem;
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 0.3rem; }
+    .hero-rating { color: var(--accent-orange); font-weight: 700; }
+    .hero-desc {
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
+      line-height: 1.7;
+      margin-bottom: 1.25rem;
+    }
+    .hero-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .btn-lg { padding: 0.75rem 1.8rem; font-size: 1rem; border-radius: 12px; }
+    .hero-banner.loaded { animation: heroFade 0.8s ease; }
+    @keyframes heroFade { from { opacity: 0.3; } to { opacity: 1; } }
+
+    /* Quick Nav Cards */
+    .quick-nav {
+      display: flex;
+      gap: 1rem;
+      padding: 1.5rem 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: -2rem;
+      position: relative;
+      z-index: 3;
+    }
+    .quick-nav-card {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1.5rem;
+      background: rgba(6, 13, 24, 0.8);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.3s;
+      min-width: 160px;
+      text-decoration: none;
+    }
+    .quick-nav-card:hover {
+      background: rgba(232, 145, 12, 0.2);
+      border-color: rgba(232, 145, 12, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(232, 145, 12, 0.2);
+    }
+    .quick-nav-card i { font-size: 1.3rem; color: var(--accent); }
+
+    /* Content Section */
+    .content-section {
+      padding: 1rem 0;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 2rem;
+    }
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .section-title i { color: var(--accent); font-size: 1rem; }
+    .section-link {
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .section-link:hover { text-decoration: underline; }
+
+    /* Scroll Row */
+    .scroll-row-wrap { position: relative; }
+    .scroll-row {
+      display: flex;
+      gap: 0.85rem;
+      padding: 0.5rem 2rem 1rem;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .scroll-row::-webkit-scrollbar { display: none; }
+    .scroll-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(6, 13, 24, 0.9);
+      border: 1px solid var(--border-glass);
+      color: #fff;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0;
+    }
+    .scroll-row-wrap:hover .scroll-arrow { opacity: 1; }
+    .scroll-arrow:hover { background: var(--accent); }
+    .scroll-arrow.arr-right { right: 0.5rem; }
+    .scroll-arrow.arr-left { left: 0.5rem; }
+
+    /* Scroll Card (Movie/Series) */
+    .scroll-card {
+      flex-shrink: 0;
+      width: 155px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+      background: rgba(255,255,255,0.04);
+    }
+    .scroll-card:hover {
+      transform: translateY(-6px) scale(1.04);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+      z-index: 5;
+    }
+    .scroll-card img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      display: block;
+    }
+    .scroll-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .scroll-card:hover .scroll-card-overlay { opacity: 1; }
+    .scroll-card-overlay i { font-size: 2.5rem; color: #fff; }
+    .scroll-badge {
+      position: absolute;
+      top: 0.4rem;
+      right: 0.4rem;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      background: rgba(232, 145, 12, 0.9);
+      color: #fff;
+    }
+    .scroll-title {
+      padding: 0.4rem 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Channel Card */
+    .channel-card {
+      flex-shrink: 0;
+      width: 110px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.75rem 0.5rem;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid transparent;
+      transition: all 0.3s;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .channel-card:hover {
+      background: rgba(232, 145, 12, 0.1);
+      border-color: rgba(232, 145, 12, 0.3);
+      transform: translateY(-4px);
+    }
+    .channel-card-logo {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .channel-card-logo img { width: 100%; height: 100%; object-fit: contain; }
+    .channel-card-logo i { font-size: 1.5rem; color: var(--text-muted); }
+    .channel-card-name {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    /* Skeleton row */
+    .scroll-row .skeleton-card {
+      flex-shrink: 0;
+      width: 155px;
+      aspect-ratio: 2/3;
+      border-radius: 10px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .scroll-row .skeleton-ch {
+      flex-shrink: 0;
+      width: 110px;
+      height: 110px;
+      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero-banner { height: 55vh; min-height: 320px; }
+      .hero-banner .hero-content { bottom: 1.5rem; right: 1.25rem; left: 1.25rem; }
+      .hero-title { font-size: 1.6rem; }
+      .hero-desc { font-size: 0.85rem; }
+      .btn-lg { padding: 0.6rem 1.2rem; font-size: 0.9rem; }
+      .quick-nav { padding: 1rem; margin-top: -1rem; gap: 0.6rem; }
+      .quick-nav-card { padding: 0.6rem 1rem; font-size: 0.85rem; min-width: auto; flex: 1; justify-content: center; }
+      .section-header { padding: 0.75rem 1rem; }
+      .scroll-row { padding: 0.5rem 1rem 1rem; gap: 0.65rem; }
+      .scroll-card { width: 130px; }
+      .scroll-arrow { display: none; }
+      .channel-card { width: 90px; }
+      .channel-card-logo { width: 50px; height: 50px; }
+    }
+    @media (max-width: 480px) {
+      .hero-banner { height: 45vh; min-height: 280px; }
+      .hero-title { font-size: 1.3rem; }
+      .hero-desc { display: none; }
+      .scroll-card { width: 115px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="home-container">
-    <!-- Settings -->
-    <button class="home-settings" onclick="openSettings()" title="الإعدادات">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="logo" title="الرئيسية">
+      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#0a1525"/><polygon points="16,12 16,28 28,20" fill="#e8910c"/></svg>
+    </a>
+    <div class="nav-tabs">
+      <a href="index.html" class="active">الرئيسية</a>
+      <a href="live.html">بث مباشر</a>
+      <a href="movies.html">افلام</a>
+      <a href="series.html">مسلسلات</a>
+    </div>
+    <button class="home-settings" onclick="openSettings()" title="الإعدادات" style="position:static;width:38px;height:38px;font-size:1.1rem;margin-right:auto">
       <i class="fas fa-cog"></i>
     </button>
+  </nav>
 
-    <!-- Cards -->
-    <div class="home-cards">
-      <!-- مسلسلات -->
-      <a href="series.html" class="home-card card-series slide-up" style="animation-delay:0.1s">
-        <div class="card-icon">
-          <svg viewBox="0 0 80 80" fill="none"><rect x="8" y="18" width="64" height="44" rx="6" stroke="#fff" stroke-width="3"/><rect x="8" y="18" width="64" height="12" rx="6" fill="rgba(255,255,255,0.2)"/><line x1="20" y1="18" x2="20" y2="62" stroke="#fff" stroke-width="2" opacity="0.5"/><circle cx="40" cy="44" r="8" stroke="#fff" stroke-width="2.5"/><polygon points="38,40 38,48 44,44" fill="#fff"/><rect x="24" y="64" width="32" height="4" rx="2" fill="rgba(255,255,255,0.5)"/></svg>
-        </div>
-        <span class="card-label">مسلسلات</span>
-      </a>
-
-      <!-- أفلام -->
-      <a href="movies.html" class="home-card card-movies slide-up" style="animation-delay:0.2s">
-        <div class="card-icon">
-          <svg viewBox="0 0 80 80" fill="none"><circle cx="40" cy="40" r="28" stroke="#fff" stroke-width="3"/><circle cx="40" cy="40" r="20" stroke="#fff" stroke-width="2" opacity="0.4"/><polygon points="34,28 34,52 56,40" fill="#fff"/><circle cx="40" cy="40" r="4" fill="rgba(255,255,255,0.6)"/></svg>
-        </div>
-        <span class="card-label">أفلام</span>
-      </a>
-
-      <!-- تلفزيون مباشر -->
-      <a href="live.html" class="home-card card-live slide-up" style="animation-delay:0.3s">
-        <div class="card-icon">
-          <svg viewBox="0 0 80 80" fill="none"><rect x="12" y="22" width="56" height="36" rx="6" stroke="#fff" stroke-width="3"/><polygon points="32,34 32,50 46,42" fill="#fff"/><rect x="28" y="58" width="24" height="3" rx="1.5" fill="rgba(255,255,255,0.5)"/><rect x="22" y="61" width="36" height="4" rx="2" fill="rgba(255,255,255,0.3)"/><line x1="30" y1="10" x2="36" y2="22" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><line x1="50" y1="10" x2="44" y2="22" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/><circle cx="40" cy="8" r="2" fill="#fff"/></svg>
-        </div>
-        <span class="card-label">تلفزيون مباشر</span>
-      </a>
+  <!-- Hero Banner -->
+  <div class="hero-banner" id="heroSection">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-title skeleton" style="width:60%;height:2.5rem;border-radius:8px;margin-bottom:0.5rem"></div>
+      <div class="skeleton" style="width:40%;height:1rem;border-radius:6px;margin-bottom:1rem"></div>
+      <div class="skeleton" style="width:80%;height:1.5rem;border-radius:6px"></div>
     </div>
   </div>
+
+  <!-- Quick Navigation -->
+  <div class="quick-nav">
+    <a href="live.html" class="quick-nav-card slide-up" style="animation-delay:0.1s">
+      <i class="fas fa-satellite-dish"></i>
+      <span>تلفزيون مباشر</span>
+    </a>
+    <a href="movies.html" class="quick-nav-card slide-up" style="animation-delay:0.2s">
+      <i class="fas fa-film"></i>
+      <span>أفلام</span>
+    </a>
+    <a href="series.html" class="quick-nav-card slide-up" style="animation-delay:0.3s">
+      <i class="fas fa-clapperboard"></i>
+      <span>مسلسلات</span>
+    </a>
+  </div>
+
+  <!-- Featured Channels Row -->
+  <div class="content-section">
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-satellite-dish"></i> القنوات العربية</div>
+      <a href="live.html" class="section-link">عرض الكل <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="scroll-row-wrap">
+      <button class="scroll-arrow arr-right" onclick="scrollRow('channelsRow','right')"><i class="fas fa-chevron-right"></i></button>
+      <div class="scroll-row" id="channelsRow">
+        <div class="skeleton-ch"></div><div class="skeleton-ch"></div><div class="skeleton-ch"></div>
+        <div class="skeleton-ch"></div><div class="skeleton-ch"></div><div class="skeleton-ch"></div>
+        <div class="skeleton-ch"></div><div class="skeleton-ch"></div>
+      </div>
+      <button class="scroll-arrow arr-left" onclick="scrollRow('channelsRow','left')"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+
+  <!-- Trending Movies Row -->
+  <div class="content-section">
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-fire"></i> أفلام رائجة</div>
+      <a href="movies.html" class="section-link">عرض الكل <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="scroll-row-wrap">
+      <button class="scroll-arrow arr-right" onclick="scrollRow('moviesRow','right')"><i class="fas fa-chevron-right"></i></button>
+      <div class="scroll-row" id="moviesRow">
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+      </div>
+      <button class="scroll-arrow arr-left" onclick="scrollRow('moviesRow','left')"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+
+  <!-- Trending Series Row -->
+  <div class="content-section">
+    <div class="section-header">
+      <div class="section-title"><i class="fas fa-star"></i> مسلسلات جديدة</div>
+      <a href="series.html" class="section-link">عرض الكل <i class="fas fa-arrow-left"></i></a>
+    </div>
+    <div class="scroll-row-wrap">
+      <button class="scroll-arrow arr-right" onclick="scrollRow('seriesRow','right')"><i class="fas fa-chevron-right"></i></button>
+      <div class="scroll-row" id="seriesRow">
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+        <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+      </div>
+      <button class="scroll-arrow arr-left" onclick="scrollRow('seriesRow','left')"><i class="fas fa-chevron-left"></i></button>
+    </div>
+  </div>
+
+  <!-- Spacer for mobile nav -->
+  <div style="height:4rem"></div>
+
+  <!-- Mobile Nav -->
+  <nav class="mobile-nav">
+    <a href="index.html" class="active"><i class="fas fa-home"></i><span>الرئيسية</span></a>
+    <a href="live.html"><i class="fas fa-tv"></i><span>مباشر</span></a>
+    <a href="movies.html"><i class="fas fa-film"></i><span>أفلام</span></a>
+    <a href="series.html"><i class="fas fa-video"></i><span>مسلسلات</span></a>
+  </nav>
 
   <!-- Settings Modal -->
   <div class="modal-backdrop" id="settingsModal">
@@ -59,7 +422,6 @@
         <span><i class="fas fa-cog"></i> الإعدادات</span>
         <button onclick="closeSettings()"><i class="fas fa-times"></i></button>
       </h2>
-
       <div class="setting-group">
         <label>نوع الخط</label>
         <select id="fontFamily" onchange="applyFont()">
@@ -71,12 +433,10 @@
         </select>
         <div class="font-preview" id="fontPreview">معاينة الخط - بسم الله الرحمن الرحيم</div>
       </div>
-
       <div class="setting-group">
         <label>حجم الخط: <span id="fontSizeVal">14</span>px</label>
         <input type="range" id="fontSize" min="12" max="20" value="14" onchange="applyFont()" oninput="document.getElementById('fontSizeVal').textContent=this.value">
       </div>
-
       <div class="setting-group">
         <label>جودة البث الافتراضية</label>
         <select id="defaultQuality" onchange="saveSetting('defaultQuality', this.value)">
@@ -87,7 +447,6 @@
           <option value="360">360p</option>
         </select>
       </div>
-
       <div class="setting-group">
         <label>لغة الترجمة المفضلة</label>
         <select id="subtitleLang" onchange="saveSetting('subtitleLang', this.value)">
@@ -97,7 +456,6 @@
           <option value="tur">التركية</option>
         </select>
       </div>
-
       <div class="setting-group">
         <label><i class="fas fa-tv"></i> وضع التلفاز الذكي</label>
         <select id="tvModeSetting" onchange="handleTVSetting(this.value)">
@@ -110,7 +468,7 @@
     </div>
   </div>
 
-  <!-- Install PWA Banner (auto-shown) -->
+  <!-- Install PWA Banner -->
   <div class="install-banner" id="installBanner" style="display:none">
     <i class="fas fa-download" style="font-size:1.5rem;color:var(--accent)"></i>
     <div class="install-text" id="installText">ثبّت التطبيق على جهازك للوصول السريع</div>
@@ -118,9 +476,10 @@
     <button class="install-close" onclick="dismissInstall()"><i class="fas fa-times"></i></button>
   </div>
 
-  <!-- TV Toggle -->
+  <div class="toast-container" id="toastContainer"></div>
   <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
   <script src="js/app.js"></script>
+  <script src="js/home.js"></script>
   <script src="js/tv.js"></script>
 </body>
 </html>

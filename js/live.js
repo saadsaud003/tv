@@ -9,9 +9,8 @@ let currentChannel = null;
 let hlsPlayer = null;
 let countriesData = {};
 let languagesData = {};
+let logosData = {};
 let currentPlayerEngine = localStorage.getItem('playerEngine') || 'default';
-let vjsPlayer = null;
-let plyrPlayer = null;
 
 const CATEGORY_MAP = {
   'all': { name: 'الكل', icon: 'fas fa-globe' },
@@ -99,15 +98,29 @@ async function init() {
   try {
     document.getElementById('channelList').innerHTML = '<div class="loading-state"><div class="spinner"></div><span>جاري التحميل...</span></div>';
 
-    // Step 1: Fetch ONLY channels + streams (essential data)
-    const [channelsRes, streamsRes] = await Promise.all([
+    // Step 1: Fetch channels + streams + logos
+    const [channelsRes, streamsRes, logosRes] = await Promise.all([
       fetch('https://iptv-org.github.io/api/channels.json'),
-      fetch('https://iptv-org.github.io/api/streams.json')
+      fetch('https://iptv-org.github.io/api/streams.json'),
+      fetch('https://iptv-org.github.io/api/logos.json').catch(() => null)
     ]);
 
     const [channelsRaw, streamsRaw] = await Promise.all([
       channelsRes.json(), streamsRes.json()
     ]);
+
+    // Build logos lookup by channel ID
+    if (logosRes && logosRes.ok) {
+      try {
+        const logosRaw = await logosRes.json();
+        logosRaw.forEach(l => {
+          if (l.channel && l.url) {
+            // Keep the first (best) logo per channel
+            if (!logosData[l.channel]) logosData[l.channel] = l.url;
+          }
+        });
+      } catch(e) { /* logos non-critical */ }
+    }
 
     // Build stream lookup
     const streamMap = {};
@@ -118,6 +131,9 @@ async function init() {
 
     // Build channels - only those with streams
     let num = 0;
+    // Arabic character range check
+    const isArabic = str => /[\u0600-\u06FF]/.test(str);
+
     allChannels = channelsRaw
       .filter(ch => streamMap[ch.id])
       .map(ch => {
@@ -125,9 +141,13 @@ async function init() {
         const countryCode = ch.country || '';
         const countryName = COUNTRY_AR[countryCode] || countryCode;
         const langNames = (ch.languages || []).map(l => LANG_AR[l] || l);
+        // Prefer Arabic name from alt_names
+        const arName = (ch.alt_names || []).find(n => isArabic(n));
+        const displayName = arName || ch.name;
         return {
           id: ch.id,
           name: ch.name,
+          displayName,
           alt_names: ch.alt_names,
           country: ch.country,
           languages: ch.languages,
@@ -136,7 +156,7 @@ async function init() {
           num,
           countryName,
           langNames,
-          logoUrl: ch.logo || ''
+          logoUrl: ch.logo || logosData[ch.id] || ''
         };
       });
 
@@ -174,72 +194,67 @@ async function loadSupplementaryData() {
 
 function buildCategories() {
   const catCounts = { all: allChannels.length };
-  const countryCounts = {};
-  const langCounts = {};
 
   allChannels.forEach(ch => {
     (ch.categories || []).forEach(cat => { catCounts[cat] = (catCounts[cat] || 0) + 1; });
-    if (ch.country) { countryCounts[ch.country] = (countryCounts[ch.country] || 0) + 1; }
-    (ch.languages || []).forEach(l => { langCounts[l] = (langCounts[l] || 0) + 1; });
   });
 
+  const tabs = document.getElementById('categoryTabs');
+  if (!tabs) return;
+
+  const item = (id, icon, name, count, active) =>
+    `<div class="cat-item${active ? ' active' : ''}" data-cat="${id}" onclick="selectCategory('${id}')">
+      <i class="${icon}"></i><span class="cat-name">${name}</span><span class="cat-count">${count}</span>
+    </div>`;
+
   let html = '';
+  html += item('all', 'fas fa-globe', 'الكل', allChannels.length, true);
+  html += item('favorites', 'fas fa-heart', 'المفضلة', getFavorites('live').length, false);
 
-  // All + Favorites
-  html += catItem('all', 'الكل', 'fas fa-globe', allChannels.length, true);
-  html += catItem('favorites', 'المفضلة', 'fas fa-heart', getFavorites('live').length);
-
-  // Categories (max ~25 items)
-  html += catSeparator('حسب التصنيف');
+  // Top categories by count
   Object.entries(catCounts)
     .filter(([k]) => k !== 'all')
     .sort((a, b) => b[1] - a[1])
     .forEach(([cat, count]) => {
       const info = CATEGORY_MAP[cat] || { name: cat, icon: 'fas fa-folder' };
-      html += catItem('cat_' + cat, info.name, info.icon, count);
+      html += item('cat_' + cat, info.icon, info.name, count, false);
     });
 
-  // Languages (top 20 only)
-  html += catSeparator('حسب اللغة');
+  // Top languages
+  const langCounts = {};
+  allChannels.forEach(ch => {
+    (ch.languages || []).forEach(l => { langCounts[l] = (langCounts[l] || 0) + 1; });
+  });
   Object.entries(langCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 20)
+    .slice(0, 10)
     .forEach(([code, count]) => {
       const name = LANG_AR[code] || code;
-      html += catItem('lang_' + code, name, 'fas fa-language', count);
+      html += item('lang_' + code, 'fas fa-language', name, count, false);
     });
 
-  // Countries (top 30 only)
-  html += catSeparator('حسب الدولة');
+  // Top countries
+  const countryCounts = {};
+  allChannels.forEach(ch => {
+    if (ch.country) countryCounts[ch.country] = (countryCounts[ch.country] || 0) + 1;
+  });
   Object.entries(countryCounts)
     .sort((a, b) => b[1] - a[1])
-    .slice(0, 30)
+    .slice(0, 15)
     .forEach(([code, count]) => {
       const name = COUNTRY_AR[code] || code;
-      html += catItem('country_' + code, name, 'fas fa-flag', count);
+      html += item('country_' + code, 'fas fa-flag', name, count, false);
     });
 
-  document.getElementById('categoryList').innerHTML = html;
-  const mobile = document.getElementById('mobileCategoryList');
-  if (mobile) mobile.innerHTML = html;
-}
-
-function catItem(id, name, icon, count, active = false) {
-  return `<div class="category-item ${active ? 'active' : ''}" data-cat="${id}" onclick="selectCategory('${id}')">
-    <span class="cat-count">${count}</span><span class="cat-name">${name}</span><span class="cat-icon"><i class="${icon}"></i></span>
-  </div>`;
-}
-function catSeparator(label) {
-  return `<div style="padding:0.5rem 1rem;font-size:0.72rem;color:var(--accent);font-weight:700;border-bottom:1px solid var(--border);background:var(--bg-card)">${label}</div>`;
+  tabs.innerHTML = html;
 }
 
 function selectCategory(catId) {
   currentCategory = catId;
-  document.querySelectorAll('.category-item').forEach(el => {
+  document.querySelectorAll('.cat-item').forEach(el => {
     el.classList.toggle('active', el.dataset.cat === catId);
   });
   renderChannels();
-  closeMobileCategories();
 }
 
 // ── Render channels (small batches for TV) ──
@@ -267,6 +282,7 @@ function renderChannels(filter = '') {
   if (filter) {
     const q = filter.toLowerCase();
     filteredChannels = filteredChannels.filter(ch =>
+      (ch.displayName || '').toLowerCase().includes(q) ||
       (ch.name || '').toLowerCase().includes(q) ||
       (ch.alt_names || []).some(n => n.toLowerCase().includes(q)) ||
       (ch.countryName || '').toLowerCase().includes(q)
@@ -285,12 +301,14 @@ function renderChannels(filter = '') {
   document.getElementById('channelList').innerHTML = '';
   renderBatch();
 
-  const list = document.getElementById('channelList');
-  list.onscroll = () => {
-    if (renderedCount < filteredChannels.length && list.scrollTop + list.clientHeight >= list.scrollHeight - 300) {
-      renderBatch();
-    }
-  };
+  const wrap = document.getElementById('channelGridWrap');
+  if (wrap) {
+    wrap.onscroll = () => {
+      if (renderedCount < filteredChannels.length && wrap.scrollTop + wrap.clientHeight >= wrap.scrollHeight - 300) {
+        renderBatch();
+      }
+    };
+  }
 }
 
 function renderBatch() {
@@ -301,18 +319,20 @@ function renderBatch() {
   for (let i = renderedCount; i < end; i++) {
     const ch = filteredChannels[i];
     const isActive = currentChannel && currentChannel.id === ch.id;
-    const langStr = ch.langNames?.length ? ch.langNames[0] : '';
 
     const div = document.createElement('div');
-    div.className = 'channel-item' + (isActive ? ' active' : '');
+    div.className = 'ch-list-item' + (isActive ? ' active' : '');
     div.dataset.id = ch.id;
     div.onclick = () => playChannel(ch.id);
-    div.innerHTML = `<div class="ch-logo">${ch.logoUrl
-      ? `<img src="${ch.logoUrl}" alt="" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('i'),{className:'fas fa-tv',style:'color:var(--text-muted)'}))">`
-      : '<i class="fas fa-tv" style="color:var(--text-muted)"></i>'
+    div.innerHTML = `<span class="ch-num">${i + 1}</span>
+    <div class="ch-list-logo">${ch.logoUrl
+      ? `<img src="${ch.logoUrl}" alt="" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=\\'fas fa-tv\\'></i>'">`
+      : '<i class="fas fa-tv"></i>'
     }</div>
-    <div class="ch-info"><div class="ch-name">${ch.name}</div><div class="ch-cat">${ch.countryName}${langStr ? ' • ' + langStr : ''}${ch.categories?.length ? ' • ' + (CATEGORY_MAP[ch.categories[0]]?.name || ch.categories[0]) : ''}</div></div>
-    <span class="ch-num">${ch.num}</span>`;
+    <div class="ch-list-info">
+      <div class="ch-list-name">${ch.displayName}</div>
+      <div class="ch-list-sub">${ch.country || ''} ${ch.countryName}</div>
+    </div>`;
     frag.appendChild(div);
   }
   list.appendChild(frag);
@@ -326,14 +346,14 @@ function playChannel(channelId) {
   if (!ch || !ch.streams.length) { showToast('لا يتوفر بث لهذه القناة'); return; }
 
   currentChannel = ch;
-  document.querySelectorAll('.channel-item.active').forEach(el => el.classList.remove('active'));
-  const el = document.querySelector(`.channel-item[data-id="${channelId}"]`);
+  document.querySelectorAll('.ch-list-item.active').forEach(el => el.classList.remove('active'));
+  const el = document.querySelector(`.ch-list-item[data-id="${channelId}"]`);
   if (el) el.classList.add('active');
 
   const infoBar = document.getElementById('playerInfo');
   if (infoBar) infoBar.style.display = 'flex';
 
-  document.getElementById('infoName').textContent = ch.name;
+  document.getElementById('infoName').textContent = ch.displayName;
   document.getElementById('infoCat').textContent =
     ch.countryName + (ch.langNames?.length ? ' • ' + ch.langNames[0] : '') +
     (ch.categories?.length ? ' • ' + (CATEGORY_MAP[ch.categories[0]]?.name || ch.categories[0]) : '');
@@ -353,28 +373,12 @@ function playChannel(channelId) {
 // ── Destroy all player instances ──
 function destroyAllPlayers() {
   if (hlsPlayer) { hlsPlayer.destroy(); hlsPlayer = null; }
-  if (vjsPlayer) {
-    try { vjsPlayer.dispose(); } catch(e) {}
-    vjsPlayer = null;
-  }
-  if (plyrPlayer) {
-    try { plyrPlayer.destroy(); } catch(e) {}
-    plyrPlayer = null;
-  }
 }
 
 // ── Reset video element ──
 function resetVideoElement() {
   const wrapper = document.getElementById('playerWrapper');
   const controls = wrapper.querySelector('.custom-controls');
-
-  // Remove Video.js containers
-  const vjsEls = wrapper.querySelectorAll('.video-js');
-  vjsEls.forEach(el => el.remove());
-
-  // Remove Plyr containers
-  const plyrEls = wrapper.querySelectorAll('.plyr');
-  plyrEls.forEach(el => el.remove());
 
   // Remove old video elements
   const oldVideos = wrapper.querySelectorAll('video');
@@ -404,13 +408,9 @@ function playStream(url) {
   const controls = document.querySelector('.custom-controls');
 
   switch (currentPlayerEngine) {
-    case 'videojs':
-      if (controls) controls.style.display = 'none';
-      playWithVideoJS(video, isHLS ? proxyUrl : proxyUrl, isHLS, url);
-      break;
-    case 'plyr':
-      if (controls) controls.style.display = 'none';
-      playWithPlyr(video, isHLS ? proxyUrl : proxyUrl, isHLS, url);
+    case 'exoplayer':
+      if (controls) controls.style.display = 'flex';
+      playWithExoPlayer(video, url, isHLS, proxyUrl);
       break;
     case 'zwplayer':
       if (controls) controls.style.display = 'flex';
@@ -451,101 +451,52 @@ function playDefault(video, url, isHLS, proxyUrl) {
   }
 }
 
-// ── Video.js Player ──
-function playWithVideoJS(video, streamUrl, isHLS, originalUrl) {
-  video.className = 'video-js vjs-default-skin vjs-big-play-centered';
-  video.id = 'vjsLivePlayer';
+// ── ExoPlayer (Adaptive Streaming Engine) ──
+function playWithExoPlayer(video, url, isHLS, proxyUrl) {
+  video.style.cssText = 'width:100%;height:100%;object-fit:contain;background:#000';
+  video.controls = false;
 
-  try {
-    vjsPlayer = videojs(video, {
-      autoplay: true,
-      controls: true,
-      liveui: true,
-      fluid: false,
-      fill: true,
-      responsive: true,
-      html5: {
-        vhs: { overrideNative: true },
-        nativeAudioTracks: false,
-        nativeVideoTracks: false
-      }
-    });
-
-    vjsPlayer.src({
-      type: isHLS ? 'application/x-mpegURL' : 'video/mp4',
-      src: streamUrl
-    });
-    vjsPlayer.play().catch(() => {});
-
-    // Fallback to direct URL on error
-    vjsPlayer.on('error', () => {
-      if (originalUrl !== streamUrl) {
-        vjsPlayer.src({
-          type: isHLS ? 'application/x-mpegURL' : 'video/mp4',
-          src: originalUrl
-        });
-        vjsPlayer.play().catch(() => {});
-      }
-    });
-  } catch(e) {
-    console.error('Video.js init error:', e);
-    showToast('خطأ في تشغيل Video.js، جاري التبديل للمشغل الافتراضي');
-    const controls = document.querySelector('.custom-controls');
-    if (controls) controls.style.display = 'flex';
-    const newVideo = resetVideoElement();
-    playDefault(newVideo, originalUrl, isHLS, streamUrl);
-  }
-}
-
-// ── Plyr Player ──
-function playWithPlyr(video, streamUrl, isHLS, originalUrl) {
-  // Initialize HLS first if needed
-  if (isHLS && Hls.isSupported()) {
-    hlsPlayer = new Hls({ maxBufferLength: 15, maxMaxBufferLength: 30 });
-    hlsPlayer.loadSource(streamUrl);
-    hlsPlayer.attachMedia(video);
-
-    hlsPlayer.on(Hls.Events.ERROR, (_, data) => {
-      if (data.fatal && originalUrl !== streamUrl) {
-        hlsPlayer.destroy();
-        hlsPlayer = new Hls({ maxBufferLength: 10, maxMaxBufferLength: 20 });
-        hlsPlayer.loadSource(originalUrl);
-        hlsPlayer.attachMedia(video);
-        hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-      }
-    });
-  } else {
-    video.src = streamUrl;
-  }
-
-  try {
-    plyrPlayer = new Plyr(video, {
-      controls: ['play-large', 'play', 'progress', 'current-time', 'mute', 'volume', 'pip', 'fullscreen'],
-      tooltips: { controls: true },
-      i18n: {
-        play: 'تشغيل',
-        pause: 'إيقاف',
-        mute: 'كتم',
-        unmute: 'إلغاء الكتم',
-        enterFullscreen: 'ملء الشاشة',
-        exitFullscreen: 'خروج من ملء الشاشة',
-        pip: 'صورة في صورة'
-      }
-    });
-
-    if (isHLS && hlsPlayer) {
-      hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
-    } else {
+  if (isHLS) {
+    if (Hls.isSupported()) {
+      hlsPlayer = new Hls({
+        maxBufferLength: 60,
+        maxMaxBufferLength: 120,
+        startLevel: -1,
+        capLevelToPlayerSize: true,
+        testBandwidth: true,
+        lowLatencyMode: false,
+        backBufferLength: 120,
+        abrEwmaDefaultEstimate: 500000,
+        abrBandWidthFactor: 0.95,
+        abrBandWidthUpFactor: 0.7,
+        progressive: true,
+        enableWorker: true
+      });
+      hlsPlayer.loadSource(proxyUrl);
+      hlsPlayer.attachMedia(video);
+      hlsPlayer.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+        video.play().catch(() => {});
+        if (data.levels && data.levels.length > 1) {
+          const best = data.levels[data.levels.length - 1];
+          showToast('ExoPlayer: ' + data.levels.length + ' جودات • ' + (best.height || '?') + 'p');
+        }
+      });
+      hlsPlayer.on(Hls.Events.ERROR, (_, data) => {
+        if (data.fatal) {
+          hlsPlayer.destroy();
+          hlsPlayer = new Hls({ maxBufferLength: 30, maxMaxBufferLength: 60 });
+          hlsPlayer.loadSource(url);
+          hlsPlayer.attachMedia(video);
+          hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => video.play().catch(() => {}));
+        }
+      });
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = url;
       video.play().catch(() => {});
     }
-  } catch(e) {
-    console.error('Plyr init error:', e);
-    showToast('خطأ في تشغيل Plyr، جاري التبديل للمشغل الافتراضي');
-    destroyAllPlayers();
-    const controls = document.querySelector('.custom-controls');
-    if (controls) controls.style.display = 'flex';
-    const newVideo = resetVideoElement();
-    playDefault(newVideo, originalUrl, isHLS, streamUrl);
+  } else {
+    video.src = proxyUrl;
+    video.play().catch(() => { video.src = url; video.play().catch(() => {}); });
   }
 }
 
@@ -606,7 +557,7 @@ function setPlayerEngine(engine) {
 }
 
 function getEngineName(engine) {
-  const names = { 'default': 'HLS', 'videojs': 'Video.js', 'plyr': 'Plyr', 'zwplayer': 'ZWPlayer' };
+  const names = { 'default': 'HLS', 'exoplayer': 'ExoPlayer', 'zwplayer': 'ZWPlayer' };
   return names[engine] || engine;
 }
 
@@ -621,14 +572,8 @@ document.addEventListener('DOMContentLoaded', () => {
   updateEngineButtons();
 });
 
-// ── Get active video element (works for all engines) ──
+// ── Get active video element ──
 function getActiveVideo() {
-  if (vjsPlayer) {
-    try { return vjsPlayer.el().querySelector('video'); } catch(e) {}
-  }
-  if (plyrPlayer) {
-    try { return plyrPlayer.media; } catch(e) {}
-  }
   return document.getElementById('videoPlayer') || document.querySelector('#playerWrapper video');
 }
 
@@ -651,7 +596,5 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-function showMobileSearch() { document.getElementById('searchInput')?.focus(); window.scrollTo({top:0,behavior:'smooth'}); }
-function openMobileCategories() { document.getElementById('mobileDrawer')?.classList.add('open'); }
-function closeMobileCategories() { document.getElementById('mobileDrawer')?.classList.remove('open'); }
+function showMobileSearch() { document.getElementById('searchInput')?.focus(); }
 function toggleView() { showToast('عرض القائمة'); }

@@ -15,10 +15,7 @@ let currentSourceIndex = parseInt(localStorage.getItem('lastSource') || '0');
 // ── Multiple Embed Sources ──
 const SOURCES = [
   { name: 'سيرفر 1', type: 'server', getUrl: (t, id, s, e) => t === 'movie' ? `https://vidsrc.cc/v2/embed/movie/${id}` : `https://vidsrc.cc/v2/embed/tv/${id}/${s}/${e}` },
-  { name: 'سيرفر 2', type: 'server', getUrl: (t, id, s, e) => t === 'movie' ? `https://player.autoembed.cc/embed/movie/${id}` : `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}` },
   { name: 'سيرفر 3', type: 'server', getUrl: (t, id, s, e) => t === 'movie' ? `https://player.videasy.net/movie/${id}` : `https://player.videasy.net/tv/${id}/${s}/${e}` },
-  { name: 'Video.js', type: 'engine', icon: 'fab fa-js', getUrl: (t, id, s, e) => t === 'movie' ? `https://vidsrc.net/embed/movie/?tmdb=${id}` : `https://vidsrc.net/embed/tv/?tmdb=${id}&season=${s}&episode=${e}` },
-  { name: 'Plyr', type: 'engine', icon: 'fas fa-play-circle', getUrl: (t, id, s, e) => t === 'movie' ? `https://2embed.skin/embed/movie/${id}` : `https://2embed.skin/embed/tv/${id}/${s}/${e}` },
   { name: 'ZWPlayer', type: 'engine', icon: 'fas fa-bolt', getUrl: (t, id, s, e) => t === 'movie' ? `https://moviesapi.club/movie/${id}` : `https://moviesapi.club/tv/${id}-${s}-${e}` },
 ];
 if (currentSourceIndex < 0 || currentSourceIndex >= SOURCES.length) currentSourceIndex = 0;
@@ -98,7 +95,7 @@ async function loadMediaDetails() {
   }
 }
 
-// ── Embed Player ──
+// ── Embed Player (with ad-blocking) ──
 function embedPlayer() {
   renderSourceButtons();
   const container = document.getElementById('playerContainer');
@@ -114,13 +111,34 @@ function embedPlayer() {
 
   const iframe = document.createElement('iframe');
   iframe.src = url;
-  iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture; clipboard-write';
+  iframe.allow = 'autoplay; fullscreen; encrypted-media; picture-in-picture';
   iframe.allowFullscreen = true;
-  iframe.referrerPolicy = 'origin';
+  iframe.referrerPolicy = 'no-referrer';
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2';
-  iframe.addEventListener('load', () => { if (loading) loading.style.display = 'none'; });
+  iframe.addEventListener('load', () => {
+    if (loading) loading.style.display = 'none';
+    // Auto fullscreen on first load
+    if (!window._hasAutoFullscreened) {
+      window._hasAutoFullscreened = true;
+      container.requestFullscreen().catch(() => {});
+    }
+  });
   setTimeout(() => { if (loading) loading.style.display = 'none'; }, 5000);
   container.appendChild(iframe);
+
+  // Add click shield to absorb first-click ad redirects (skip on TV mode - blocks D-pad)
+  const oldShield = container.querySelector('.click-shield');
+  if (oldShield) oldShield.remove();
+  if (!document.body.classList.contains('tv-mode')) {
+    const shield = document.createElement('div');
+    shield.className = 'click-shield';
+    shield.title = 'اضغط للتشغيل';
+    shield.addEventListener('click', () => {
+      shield.classList.add('dismissed');
+    }, { once: true });
+    setTimeout(() => shield.classList.add('dismissed'), 3000);
+    container.appendChild(shield);
+  }
 }
 
 // ── Switch Source ──
@@ -169,6 +187,7 @@ function watchTrailer() {
   iframe.src = `https://www.youtube.com/embed/${trailerKey}?autoplay=1&rel=0&modestbranding=1&hl=ar`;
   iframe.allow = 'autoplay; fullscreen; picture-in-picture';
   iframe.allowFullscreen = true;
+  iframe.referrerPolicy = 'no-referrer';
   iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:2';
   container.appendChild(iframe);
 

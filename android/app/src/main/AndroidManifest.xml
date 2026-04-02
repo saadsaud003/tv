@@ -38,6 +38,14 @@
             </intent-filter>
         </activity>
 
+        <!-- نشاط ExoPlayer - تشغيل الفيديو بشكل أصلي -->
+        <activity
+            android:name=".ExoPlayerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|smallestScreenSize"
+            android:exported="false"
+            android:screenOrientation="landscape"
+            android:theme="@style/AppTheme" />
+
         <!-- نشاط التلفاز - يظهر في قائمة Android TV -->
         <activity-alias
             android:name=".TVActivity"

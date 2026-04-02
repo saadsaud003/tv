@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0a1628">
-  <title>أفلام - تلفزيون العرب</title>
+  <meta name="theme-color" content="#060d18">
+  <title>IPTVأفلام - المسودي </title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,14 +14,14 @@
   <link rel="stylesheet" href="css/tv.css">
   <style>
     .browse-layout { display: flex; height: calc(100vh - var(--navbar-h)); height: calc(100dvh - var(--navbar-h)); overflow: hidden; }
-    .browse-sidebar { width: var(--sidebar-w); background: var(--bg-secondary); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
+    .browse-sidebar { width: var(--sidebar-w); background: rgba(6, 13, 24, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-left: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0; }
     .browse-sidebar .sidebar-header { padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.5rem; }
     .browse-sidebar .sidebar-list { flex: 1; overflow-y: auto; }
     .browse-main { flex: 1; overflow-y: auto; min-width: 0; }
-    .adv-search { padding: 1rem 1.25rem; background: var(--bg-secondary); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+    .adv-search { padding: 1rem 1.25rem; background: rgba(6, 13, 24, 0.8); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
     .adv-search .search-box { flex: 1; min-width: 200px; max-width: none; }
-    .filter-select { padding: 0.45rem 0.75rem; background: var(--bg-input); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.82rem; outline: none; min-width: 100px; }
-    .filter-select:focus { border-color: var(--accent); }
+    .filter-select { padding: 0.45rem 0.75rem; background: rgba(255, 255, 255, 0.08); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text-primary); font-size: 0.82rem; outline: none; min-width: 100px; transition: all 0.25s; }
+    .filter-select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(232, 145, 12, 0.15); }
     .results-info { padding: 0.5rem 1.25rem; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
     @media (max-width: 768px) {
       .browse-sidebar { display: none; }
@@ -33,8 +33,9 @@
 <body>
   <!-- Navbar -->
   <nav class="navbar">
+    <a href="index.html" class="nav-back" title="رجوع"><i class="fas fa-arrow-right"></i> رجوع</a>
     <a href="index.html" class="logo" title="الرئيسية">
-      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#1a2d4a"/><polygon points="16,12 16,28 28,20" fill="#3b82f6"/></svg>
+      <svg viewBox="0 0 40 40"><rect width="40" height="40" rx="20" fill="#0a1525"/><polygon points="16,12 16,28 28,20" fill="#e8910c"/></svg>
     </a>
     <div class="nav-tabs">
       <a href="index.html">الرئيسية</a>

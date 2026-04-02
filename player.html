@@ -12,14 +12,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/tv.css">
-  <!-- Video.js -->
-  <link href="https://vjs.zencdn.net/8.10.0/video-js.css" rel="stylesheet">
-  <!-- Plyr -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
   <style>
     /* Player Page Pro Styles */
     .pro-player-page {
-      background: #000;
+      background: #060d18;
       min-height: 100vh;
       min-height: 100dvh;
       display: flex;
@@ -46,7 +42,7 @@
       z-index: 1;
     }
 
-    /* Top Overlay Bar */
+    /* Top Overlay Bar - Always visible */
     .player-top-bar {
       position: absolute;
       top: 0;
@@ -57,23 +53,27 @@
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem 1rem;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-      opacity: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.3), transparent);
+      opacity: 1;
       transition: opacity 0.3s;
     }
-    .pro-player-container:hover .player-top-bar { opacity: 1; }
     .player-top-bar .back-btn {
       color: #fff;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
+      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.4rem 0.75rem;
-      border-radius: 6px;
-      background: rgba(255,255,255,0.1);
-      transition: background 0.2s;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      background: rgba(232, 145, 12, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(232, 145, 12, 0.5);
+      transition: all 0.25s;
+      flex-shrink: 0;
     }
-    .player-top-bar .back-btn:hover { background: rgba(255,255,255,0.2); }
+    .player-top-bar .back-btn:hover { background: rgba(232, 145, 12, 0.9); transform: scale(1.03); }
     .player-top-bar .top-title {
       flex: 1;
       color: #fff;
@@ -112,7 +112,9 @@
 
     /* Source bar */
     .source-bar {
-      background: var(--bg-secondary);
+      background: rgba(6, 13, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       padding: 0.6rem 1rem;
       display: flex;
       align-items: center;
@@ -130,33 +132,33 @@
     }
     .source-btn {
       padding: 0.35rem 0.85rem;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 0.8rem;
       font-weight: 600;
       white-space: nowrap;
-      background: var(--bg-card);
+      background: rgba(255, 255, 255, 0.06);
       color: var(--text-secondary);
-      border: 1px solid var(--border);
-      transition: all 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s;
       flex-shrink: 0;
     }
-    .source-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-    .source-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
-    .source-btn.trailer-btn { background: rgba(239,68,68,0.15); color: #ef4444; border-color: rgba(239,68,68,0.3); }
-    .source-btn.trailer-btn:hover { background: rgba(239,68,68,0.25); }
-    .source-btn.newtab-btn { background: rgba(16,185,129,0.15); color: #10b981; border-color: rgba(16,185,129,0.3); }
-    .source-btn.newtab-btn:hover { background: rgba(16,185,129,0.25); }
+    .source-btn:hover { background: rgba(255, 255, 255, 0.12); color: var(--text-primary); }
+    .source-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(232, 145, 12, 0.3); }
+    .source-btn.trailer-btn { background: rgba(232, 145, 12, 0.15); color: #e8910c; border-color: rgba(232, 145, 12, 0.3); }
+    .source-btn.trailer-btn:hover { background: rgba(232, 145, 12, 0.25); }
+    .source-btn.newtab-btn { background: rgba(70, 211, 105, 0.15); color: #46d369; border-color: rgba(70, 211, 105, 0.3); }
+    .source-btn.newtab-btn:hover { background: rgba(70, 211, 105, 0.25); }
 
     /* Engine source buttons */
-    .src-divider { color: var(--border); font-size: 0.9rem; margin: 0 0.3rem; flex-shrink: 0; user-select: none; }
-    .source-btn.engine-src { background: rgba(59,130,246,0.1); color: #3b82f6; border-color: rgba(59,130,246,0.25); }
-    .source-btn.engine-src:hover { background: rgba(59,130,246,0.2); color: #60a5fa; }
-    .source-btn.engine-src.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+    .src-divider { color: rgba(255,255,255,0.15); font-size: 0.9rem; margin: 0 0.3rem; flex-shrink: 0; user-select: none; }
+    .source-btn.engine-src { background: rgba(232, 145, 12, 0.08); color: #f5a623; border-color: rgba(232, 145, 12, 0.2); }
+    .source-btn.engine-src:hover { background: rgba(232, 145, 12, 0.15); color: #ffc85c; }
+    .source-btn.engine-src.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(232, 145, 12, 0.3); }
 
     /* Info Section */
     .pro-info {
       flex: 1;
-      background: var(--bg-primary);
+      background: rgba(6, 13, 24, 0.95);
       overflow-y: auto;
     }
     .pro-info-inner { padding: 1.25rem; }
@@ -245,12 +247,14 @@
       width: 400px;
       max-width: 85vw;
       height: 100%;
-      background: var(--bg-secondary);
+      background: rgba(6, 13, 24, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       z-index: 201;
       display: flex;
       flex-direction: column;
       transition: left 0.3s ease;
-      border-right: 1px solid var(--border);
+      border-right: 1px solid rgba(255,255,255,0.1);
     }
     .sub-panel-overlay.open .sub-panel { left: 0; }
     .sub-panel-header {
@@ -332,6 +336,23 @@
       color: var(--text-muted);
       font-size: 0.85rem;
     }
+
+    /* Block common ad overlay patterns */
+    .pro-player-container iframe + div[style*="z-index"],
+    .pro-player-container iframe ~ div[class*="ad"],
+    .pro-player-container iframe ~ div[id*="ad"] {
+      display: none !important;
+      pointer-events: none !important;
+    }
+    /* Prevent first-click redirect on embed */
+    .click-shield {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      cursor: pointer;
+      background: transparent;
+    }
+    .click-shield.dismissed { display: none; }
 
     @media (min-width: 1024px) {
       .pro-player-container { max-height: 75vh; }
@@ -454,8 +475,6 @@
   <button class="tv-toggle" onclick="TVMode.toggle()" title="وضع التلفاز"><i class="fas fa-tv"></i></button>
 
   <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js"></script>
-  <script src="https://vjs.zencdn.net/8.10.0/video.min.js"></script>
-  <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
   <script src="js/app.js"></script>
   <script src="js/player.js"></script>
   <script src="js/tv.js"></script>
